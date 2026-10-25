@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#2e6654">
+<meta name="description" content="特教國文部首辨識小遊戲：靠近同部首的字收集朋友，躲開追來的不同部首旋風字。">
+<title>部首森林｜旋風大作戰</title>
+<style>
+:root{--ink:#243f35;--green:#306a54;--green-d:#23543f;--cream:#f6f5ee;--line:#dce3d8;--soft:#e7eddf;--muted:#647365;--amber:#c98a2e;--red:#b4553f;--panel:#fffef8ee}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#eef2e6;color:var(--ink);font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);padding:10px 16px;font-weight:700;min-height:44px}
+button:hover{background:#edf3e9}button:focus-visible,input:focus-visible,canvas:focus-visible{outline:3px solid #b97c22;outline-offset:2px}button:disabled{opacity:.45;cursor:default}
+.primary{background:var(--green);color:#fff;border-color:var(--green)}.primary:hover{background:var(--green-d)}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block}
+/* HUD */
+.hud{position:fixed;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px 8px;padding:calc(env(safe-area-inset-top) + 6px) 10px 6px;pointer-events:none;z-index:3;background:#f6f5ee;border-bottom:1px solid var(--line);transition:background .3s}
+.hud.alarm{background:#fbeede;border-bottom:2px solid var(--amber)}
+.col{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.col.r{justify-content:flex-end;margin-left:auto}
+.pill{background:#fff;border:1px solid var(--line);border-radius:11px;padding:4px 9px;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;box-shadow:0 4px 12px #2a3f3414;white-space:nowrap}
+.pill small{font-weight:600;color:var(--muted);font-size:11px;margin-right:4px}
+.target{display:flex;align-items:center;gap:6px;padding:3px 9px 3px 3px}.target i{font:normal 700 22px 'BiauKai','KaiTi',serif;width:32px;height:32px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center}
+.leaf b{color:#2f7a4f;font-size:16px}
+.btnrow{display:flex;gap:6px;pointer-events:auto}.btnrow button{min-height:34px;padding:3px 10px;border-radius:11px;font-size:13px}
+/* ticker */
+.ticker{position:fixed;left:0;right:0;bottom:0;padding-bottom:env(safe-area-inset-bottom);background:#3d6b57;pointer-events:none;z-index:3;min-height:30px}
+.tline{display:flex;height:30px;align-items:center;overflow:hidden;border-top:1px solid #0002;color:#fff}
+.tline .tag{flex:none;min-width:62px;padding:0 6px;height:100%;display:grid;place-items:center;font-weight:800;font-size:13px;background:#0002}
+.tline .mw{flex:1;min-width:0;height:100%;overflow:hidden;display:flex;align-items:center}
+.tline .msg{white-space:nowrap;font-size:15px;font-weight:600;padding-left:100%;animation:marq var(--dur,11s) linear forwards}
+.tline.warn{background:#a9573f}.tline.good{background:#2f8f6b}.tline.calm{background:#c9a64e;color:#2a1f05}
+@keyframes marq{to{transform:translate(-100%)}}
+/* controls */
+.joy{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom) + 42px);width:96px;height:96px;border-radius:50%;background:#ffffff55;border:2px solid #c8d4c188;z-index:3;display:none;touch-action:none;opacity:.6;transition:opacity .2s}.joy.act{opacity:.9}
+.joy i{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:var(--green);box-shadow:0 3px 0 #23543f55}
+@media (hover:none),(max-width:850px){.joy{display:block}}
+.weapon{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom) + 42px);border:0;border-radius:16px;padding:9px 13px;font:800 14px/1.2 inherit;opacity:.88;color:#1b2a12;background:linear-gradient(#d9f0b8,#9fd07a);box-shadow:0 6px 18px #2a3f3433,0 0 0 3px #fff8 inset;display:none;z-index:3}
+.weapon.on{display:block;animation:pulse 1.4s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.05)}}
+/* banners */
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 118px);transform:translateX(-50%);background:#fffef8;border:1px solid #d4decb;border-radius:14px;padding:9px 16px;font-size:16px;font-weight:700;box-shadow:0 6px 16px #2a3f3418;z-index:4;max-width:calc(100% - 32px);text-align:center;opacity:0;transition:opacity .25s;pointer-events:none}.toast.on{opacity:1}
+.alert{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);width:max-content;max-width:92vw;justify-content:center;display:none;align-items:center;gap:10px;background:#fff7ea;border:3px solid var(--amber);border-radius:16px;padding:12px 18px;font-size:19px;font-weight:900;color:#7a4a12;z-index:5;box-shadow:0 10px 30px #6b4a1a33;text-align:center}.alert.on{display:flex}
+.shout{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%) scale(.6);font-size:clamp(28px,7vw,46px);font-weight:900;color:var(--green-d);text-shadow:0 3px 0 #fff,0 0 18px #fff;opacity:0;pointer-events:none;z-index:4;white-space:nowrap}
+.shout.go{animation:shout 1.4s ease-out forwards}@keyframes shout{15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+.bossbar{width:min(220px,34vw);display:none;text-align:left;padding:3px 8px}.bossbar .bname{font-size:10px!important;margin-bottom:1px!important}.bossbar .btrack{height:7px!important}.bossbar.on{display:block}
+.bossbar .bname{font-size:12px;font-weight:800;color:#7a3a28;margin-bottom:3px}.btrack{height:10px;border-radius:9px;background:#fff;border:1px solid #d9b5a8;overflow:hidden}.bfill{height:100%;width:100%;background:linear-gradient(90deg,#d9744f,#b4553f);transition:width .3s}
+/* modal cards */
+.veil{position:fixed;inset:0;background:#eef2e6e8;z-index:10;overflow:auto;display:flex;padding:18px;touch-action:pan-y}.veil[hidden]{display:none}
+.card{max-width:520px;width:100%;margin:auto;background:#fffef9;border:1px solid var(--line);border-radius:22px;padding:22px 20px;text-align:center;box-shadow:0 18px 40px #2a3f3418;user-select:text}
+.logo{display:flex;justify-content:center;align-items:end;gap:12px;margin:4px 0 12px}.logo span{display:grid;place-items:center;width:56px;height:66px;border-radius:18px;background:#fff;font:34px 'BiauKai','KaiTi',serif;border:1px solid #d4decb;transform:rotate(-9deg)}.logo span:nth-child(2){width:80px;height:92px;background:var(--green);color:#fff;font-size:44px;transform:rotate(4deg);box-shadow:0 0 0 10px #306a5414,0 0 0 22px #306a540a}.logo span:last-child{transform:rotate(12deg)}
+.eyebrow{font-size:11px;letter-spacing:3px;font-weight:800;color:#6c806e}
+.card h1{font-size:30px;margin:4px 0;letter-spacing:2px}.card h2{font-size:24px;line-height:1.45;margin:6px 0}.card p{line-height:1.7;margin:8px 0 12px;color:var(--muted)}
+.btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.counters{display:flex;gap:8px;justify-content:center;margin:6px 0 12px;flex-wrap:wrap}.counters div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px 12px;min-width:92px}.counters small{display:block;font-size:11px;color:#768273}.counters b{font-size:20px}
+.step{text-align:left;font-size:13px;font-weight:800;margin:14px 0 8px}.step span{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;margin-right:6px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.group{padding:6px 0;display:grid;place-items:center;min-height:60px}.group b{font:700 26px 'BiauKai','KaiTi',serif}.group small{font-size:11px;color:#6b786e}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.seg button{display:grid;gap:2px;padding:8px 4px}.seg small{font-size:11px;color:#6b786e;font-weight:500}
+[aria-pressed="true"]{background:#e6efe3!important;border:2px solid var(--green)!important}
+.opts{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:14px;text-align:left}.opts label{display:flex;align-items:center;gap:6px}.opts input{width:18px;height:18px;accent-color:var(--green)}
+.boss-btn{width:100%;margin-top:8px;background:#fbefe9;border-color:#e3c1b4;color:#7a3a28}
+.chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}.chips span{background:#fff;padding:6px 12px;border-radius:12px;border:1px solid var(--line);font-size:14px}
+.big{font-size:44px;font-weight:900;color:#2f7a4f;margin:0;font-variant-numeric:tabular-nums}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.result-grid div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px}.result-grid small{display:block;font-size:11px;color:#768273}.result-grid b{font-size:19px}
+.review{font-size:15px;line-height:1.8;margin:10px 0}
+.modal{position:fixed;inset:0;background:#24352d66;z-index:20;display:flex;padding:16px;overflow:auto;touch-action:pan-y}.modal[hidden]{display:none}
+.sheet{background:var(--cream);border-radius:22px;max-width:640px;width:100%;margin:auto;padding:22px;border:1px solid var(--line);user-select:text}.sheet h2{margin:4px 0 10px;font-size:22px}.sheet p,.sheet li{line-height:1.7;color:var(--muted);font-size:14px}.sheet ul{padding-left:0;list-style:none}.sheet li{display:flex;gap:10px;margin:8px 0}.sheet li>b{flex-shrink:0;width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:17px}.sheet .close{float:right}.teacher{border-top:1px solid var(--line);margin-top:14px;padding-top:6px}
+.codex-top{display:flex;align-items:center;gap:16px;margin:10px 0}.codex-rad{width:92px;height:106px;border-radius:22px;background:var(--green);color:#fff;display:grid;place-items:center;font:700 56px 'BiauKai','KaiTi',serif;flex-shrink:0}.codex-top h3{margin:0;font-size:22px}.codex-top p{margin:4px 0}
+.words{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.words div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 0;text-align:center;font:700 32px 'BiauKai','KaiTi',serif}.words small{display:block;font:500 11px sans-serif;color:#7b8779}.words .got{border-color:var(--green);background:#f1f6ee}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:8px}.pager span{font-size:12px;color:var(--muted);text-align:center}.pager button{white-space:nowrap;padding:8px 12px}
+.credits{font-size:11px;color:#8a948a;margin-top:12px;line-height:1.6}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media(max-width:620px){.pill{font-size:14px;padding:5px 9px}.target i{width:34px;height:34px;font-size:22px}.card{padding:18px 14px}.card h1{font-size:26px}.seg small{display:none}.result-grid{grid-template-columns:repeat(2,1fr)}.codex-rad{width:74px;height:86px;font-size:44px}.toast{top:calc(env(safe-area-inset-top) + 150px)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:0s!important}.tline .msg{padding-left:12px;animation:none}.weapon.on{animation:none}}
+</style></head><body>
+<canvas id="cv" tabindex="0" aria-label="部首遊戲區。方向鍵移動，空白鍵暫停，Q 吹散。"></canvas>
+<div class="hud" id="hud">
+ <div class="col">
+  <div class="pill target"><i id="radical">木</i><span><small>要找</small><b id="targetName">木部</b></span></div>
+  <div class="pill"><small>剩餘</small><span id="time">5:00</span></div>
+  <div class="pill" id="wave"><small>第 1 波</small>0/4・場上 0</div>
+  <div class="pill bossbar" id="bossbar"><div class="bname">部首大雜燴</div><div class="btrack"><div class="bfill" id="bfill"></div></div></div>
+ </div>
+ <div class="col r">
+  <div class="pill leaf"><small>🍃 葉子</small><b id="leaves">0</b></div>
+  <div class="pill"><small>朋友</small><span id="score">0</span></div>
+  <div class="pill"><small id="shieldLbl">守護葉</small><span id="shields">—</span></div>
+  <div class="btnrow"><button id="pauseBtn" aria-label="暫停">暫停</button><button id="muteBtn" aria-label="聲音開關">🔊</button></div>
+ </div>
+</div>
+<button class="weapon" id="windBtn">🌬 吹散</button>
+<div class="joy" id="joy" aria-hidden="true"><i id="knob"></i></div>
+<div class="ticker" id="ticker"></div>
+<div class="veil" id="veil"><div class="card" id="card"></div></div>
+<div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<p class="sr" id="live" aria-live="polite"></p>
+<script>
+'use strict';
+/* ================= data ================= */
+const BANK=[
+{r:'木',shape:'木',name:'樹木',pos:'常在左邊或下方',words:['林','村','校','枝','桌','椅','樹','松']},
+{r:'口',shape:'口',name:'嘴巴',pos:'常在左邊',words:['吃','喝','叫','唱','吹','嘴','吵','問']},
+{r:'水',shape:'氵',name:'流水',pos:'在左邊寫成「氵」',words:['河','海','洗','池','湖','游','江','泳']},
+{r:'手',shape:'扌',name:'雙手',pos:'在左邊常寫成「扌」',words:['打','拍','抱','拉','推','提','拿','找']},
+{r:'言',shape:'言',name:'說話',pos:'常在左邊',words:['說','話','語','讀','謝','請','記','詩']},
+{r:'心',shape:'心',name:'心情',pos:'本字庫多在下方',words:['想','思','忘','念','感','意','愛','息']},
+{r:'日',shape:'日',name:'太陽',pos:'在左邊、上方或下方',words:['明','早','晚','星','時','春','昨','暗']},
+{r:'艸',shape:'艹',name:'草木',pos:'在上方寫成「艹」',words:['花','草','茶','菜','葉','苗','芽','藥']}];
+const DIFF={
+ easy:{name:'簡單',tip:'很慢・1～2 個追逐字',speed:14,c0:1,cMax:2,base:3,life:9,freq:1.35,wind:2,sLives:2,sMax:3,bossLives:4},
+ normal:{name:'普通',tip:'2～3 個追逐字',speed:20,c0:2,cMax:3,base:4,life:11,freq:1,wind:1,sLives:3,sMax:2,bossLives:3},
+ hard:{name:'困難',tip:'稍快・最多 4 個',speed:30,c0:2,cMax:4,base:5,life:13,freq:.8,wind:1,sLives:3,sMax:2,bossLives:3}};
+const LIMIT=300,OUT=82,IN=60,HIT=46,FRIEND_BONUS=6;
+const HAN="'BiauKai','DFKai-SB','KaiTi','STKaiti',serif";
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
+const pick=a=>a[Math.floor(Math.random()*a.length)],shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+const KEY='radicalForestStormV3';
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+let store=Object.assign({total:0,best:0,bestF:0,bestWave:0,bossWin:0,seen:{},mute:false},load());
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+let opt={sel:0,diff:store.diff||'normal',hints:true,voice:false,graze:true};
+let G={state:'title',kind:'season',chars:[],pickups:[],floats:[],fx:[],player:null},W=0,H=0,keys=new Set(),joyVec={x:0,y:0},dest=null,last=performance.now(),clock=0;
+const cur=()=>BANK[opt.sel],D=()=>DIFF[opt.diff];
+let TOP=80;const fieldH=()=>H-($('ticker').offsetHeight||30);
+function measure(){TOP=$('hud').getBoundingClientRect().bottom}
+const blocked=(x,y)=>(x<130&&y>fieldH()-140)||(x>W-130&&y>fieldH()-90);
+
+/* ================= sound ================= */
+let AC=null;
+function audio(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume()}catch(e){}}
+function tone(f,d=.12,type='sine',v=.08,at=0,f2){if(store.mute||!AC)return;const t=AC.currentTime+at,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}
+const sfx={collect(){tone(660,.12,'triangle');tone(880,.16,'triangle',.07,.08)},graze(n){tone(520+n*120,.09,'sine',.06)},hit(){tone(220,.3,'sawtooth',.05,0,110)},block(){tone(392,.12,'square',.04);tone(523,.18,'square',.04,.1)},
+ alert(){for(let i=0;i<3;i++){tone(620,.18,'triangle',.06,i*.4);tone(480,.18,'triangle',.06,i*.4+.2)}},wind(){tone(300,.6,'sawtooth',.03,0,1200)},wave(){[523,659,784].forEach((f,i)=>tone(f,.14,'triangle',.06,i*.1))},pickup(){tone(740,.1,'sine',.07);tone(988,.12,'sine',.06,.07)},warn(){tone(300,.15,'square',.03)}};
+function speak(t){if(!opt.voice||!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-TW';u.rate=.8;speechSynthesis.speak(u)}
+
+/* ================= UI helpers ================= */
+let toastT=0;function toast(t,s,tag='提示',cls='good'){ticker(tag,t,cls)}
+function ticker(tag,msg,cls=''){const n=document.createElement('div');n.className='tline '+cls;n.innerHTML='<div class="tag"></div><div class="mw"><div class="msg"></div></div>';n.children[0].textContent=tag;const m=n.querySelector('.msg');m.textContent=msg;m.style.setProperty('--dur',Math.max(7,msg.length*.32)+'s');const t=$('ticker');t.prepend(n);while(t.children.length>1)t.lastChild.remove();$('live').textContent=msg}
+function shout(t){if(G.player)G.floats.push({x:G.player.x,y:G.player.y-62,text:t,t:0,color:'#23543f',big:true})}
+let alertT=0;function alertOn(t,s=3){$('hud').classList.add('alarm');alertT=s;sfx.alert();navigator.vibrate&&navigator.vibrate([150,80,150])}
+function float(x,y,text,color='#23543f'){G.floats.push({x,y,text,t:0,color})}
+
+/* ================= canvas ================= */
+let bgPat=null;
+function resize(){const dpr=Math.min(devicePixelRatio||1,2),ow=W||innerWidth,oh=H||innerHeight;W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+ if(G.player){for(const o of [G.player,...G.chars,...G.pickups,...(G.boss?[G.boss]:[])]){o.x=o.x/ow*W;o.y=o.y/oh*H}}dest=null;
+ const p=document.createElement('canvas');p.width=p.height=23;const c=p.getContext('2d');c.fillStyle='#becbb966';c.beginPath();c.arc(11.5,11.5,1.2,0,7);c.fill();bgPat=ctx.createPattern(p,'repeat')}
+addEventListener('resize',resize);
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function circle(x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2)}
+
+/* ================= spawning ================= */
+function freeSpot(minP=160){let best=null,score=-1e9;for(let n=0;n<160;n++){const p={x:50+Math.random()*(W-100),y:TOP+50+Math.random()*Math.max(40,fieldH()-TOP-100)};if(blocked(p.x,p.y))continue;const others=[...G.chars,...G.pickups].map(i=>Math.hypot(p.x-i.x,p.y-i.y)-90);const d=Math.min(Math.hypot(p.x-G.player.x,p.y-G.player.y)-minP+90,...others,999);if(d>score){best=p;score=d}if(d>110)return p}return best}
+function edgeSpot(){let best=null,bd=-1e9;for(let k=0;k<16;k++){const side=Math.floor(Math.random()*4),m=40,q={};
+ const fy=()=>TOP+Math.random()*(fieldH()-TOP);if(side===0){q.x=Math.random()*W;q.y=TOP-m}else if(side===1){q.x=W+m;q.y=fy()}else if(side===2){q.x=Math.random()*W;q.y=fieldH()+m}else{q.x=-m;q.y=fy()}
+ const d=Math.hypot(q.x-G.player.x,q.y-G.player.y),sc=d<240?d-1e4:-Math.abs(d-310);if(sc>bd){bd=sc;best=q}}return best}
+const onField=w=>G.chars.some(c=>c.word===w&&!c.dying);
+function otherWord(){const g=pick(BANK.filter((_,i)=>i!==opt.sel)),pool=g.words.filter(w=>!onField(w));return{g,word:pick(pool.length?pool:g.words)}}
+function spawnFriend(){let word;for(let k=0;k<8;k++){word=G.seq[G.seqI++%G.seq.length];if(!onField(word))break}const o={g:cur(),word,friend:true,age:0,rot:Math.random()*6,vx:0,vy:0,...freeSpot()};G.chars.push(o);return o}
+function spawnChaser(extra={}){const {g,word}=otherWord();const o={g,word,friend:false,no:++G.no,wave:G.wave,age:0,rot:Math.random()*6,vx:0,vy:0,depth:0,life:D().life+Math.random()*4,...edgeSpot(),...extra};G.chars.push(o);return o}
+function spawnStrong(){const o=spawnChaser({strong:true,lives:D().sLives,life:26,inv:5});alertOn('森林氣象站發布強旋風警報',3);
+ ticker('強旋風',`強旋風「${o.word}」（${o.g.r}部）接近中：紅圈碰到就算碰錯，黃色外圈可以擦身拿葉子`,'warn');return o}
+const sRing=o=>40+o.lives*14;   // outermost red ring of a strong chaser
+const hitR=o=>o.strong?sRing(o)+10:HIT;
+
+/* ================= flow ================= */
+function setOverlay(html){$('card').innerHTML=html;$('veil').hidden=false;keys.clear();dest=null;resetJoy();requestAnimationFrame(()=>$('card').querySelector('button.primary')?.focus({preventScroll:true}))}
+function hideOverlay(){$('veil').hidden=true;cv.focus({preventScroll:true})}
+function title(){G={state:'title',kind:'season',chars:[],pickups:[],floats:[],fx:[],player:null};$('bossbar').classList.remove('on');$('ticker').innerHTML='';updateHud(true);
+ const g=cur(),d=D();
+ setOverlay(`<div class="logo"><span>${g.words[0]}</span><span>${g.r}</span><span>${g.words[1]}</span></div>
+ <h1>部首森林<br>旋風大作戰</h1><p class="eyebrow">RADICAL FOREST · STORM SEASON</p>
+ <p>靠近<b>${g.r}部</b>的字收集朋友；不同部首的字會變成旋風追著你。<br>從旋風圈擦身而過拿葉子，被字的中心碰到就要停下來看清楚。</p>
+ <div class="counters"><div><small>累計朋友</small><b>${store.total}</b></div><div><small>最多葉子</small><b>${store.best}</b></div><div><small>最遠波數</small><b>${store.bestWave||0}</b></div></div>
+ <div class="step"><span>1</span>這次認識哪一個部首？</div><div class="grid4">${BANK.map((b,i)=>`<button class="group" data-g="${i}" aria-pressed="${i===opt.sel}"><b>${b.r}</b><small>${b.name}</small></button>`).join('')}</div>
+ <div class="step"><span>2</span>難度</div><div class="seg" role="radiogroup">${Object.entries(DIFF).map(([k,m])=>`<button data-d="${k}" aria-pressed="${k===opt.diff}">${m.name}<small>${m.tip}</small></button>`).join('')}</div>
+ <div class="opts"><label><input type="checkbox" id="oHints" ${opt.hints?'checked':''}>顯示部首提示</label><label><input type="checkbox" id="oGraze" ${opt.graze?'checked':''}>擦身而過拿葉子</label><label><input type="checkbox" id="oVoice" ${opt.voice?'checked':''}>語音提示</label></div>
+ <div class="btns"><button class="primary" id="startBtn">開始 5 分鐘旋風季 →</button><button id="t-help">怎麼玩</button><button id="t-codex">📖 部首圖鑑</button></div>
+ <button class="boss-btn" id="bossBtn">BOSS 戰：部首大雜燴 ${store.bossWin?'✓':''}</button>
+ <div class="credits">玩法參考《颱風假大作戰》（暴風圈、強颱警報、氣象武器、BOSS 戰）· 獨立重寫的教學版本，不上傳任何學生資料。</div>`);
+ document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{opt.sel=+b.dataset.g;title()});
+ document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{opt.diff=b.dataset.d;store.diff=opt.diff;save();title()});
+ $('oHints').onchange=e=>opt.hints=e.target.checked;$('oGraze').onchange=e=>opt.graze=e.target.checked;$('oVoice').onchange=e=>opt.voice=e.target.checked;
+ $('startBtn').onclick=()=>{audio();start('season')};$('bossBtn').onclick=()=>{audio();bossIntro()};$('t-help').onclick=help;$('t-codex').onclick=()=>codex(opt.sel)}
+function bossIntro(){setOverlay(`<div class="eyebrow">BOSS 戰</div><h1>部首大雜燴</h1><p>一團混著各種部首的大旋風，正朝<b>${cur().r}部</b>森林慢慢移動。</p>
+ <ul style="text-align:left;line-height:1.75;color:var(--muted);font-size:14.5px;padding-left:20px">
+ <li><b>守護葉就是你的命</b>：被它的中心、字雨彈或小旋風碰到就少一片，沒有了就結束。</li>
+ <li>它出招前會<b>先預警</b>：紅色虛線圈＝字雨彈要落下、瞄準線＝要衝過來。看清楚再閃。</li>
+ <li>削弱它：<b>收集${cur().r}部的朋友</b>（每個 −10%），或用吹散（−6%）。</li>
+ <li>它愈弱，<b>中心會愈大</b>，最後要小心。</li></ul>
+ <div class="btns"><button class="primary" id="bossGo">迎戰</button><button id="bossBack">回去</button></div>`);$('bossGo').onclick=()=>start('boss');$('bossBack').onclick=title}
+function baseState(kind){return{state:'running',kind,chars:[],pickups:[],floats:[],fx:[],found:[],mistakes:[],blocked:[],grazes:0,leaves:0,shields:0,wind:D().wind,no:0,
+ wave:0,waveSpawned:0,waveDone:0,breakT:-1,strongKilled:0,elapsed:0,grace:2,warned:false,friendCD:0,wrongCD:0,shieldClock:9/D().freq,windClock:30/D().freq,seq:shuffle(cur().words),seqI:0,inv:0,
+ player:{x:W/2,y:TOP+(fieldH()-TOP)*.7}}}
+function start(kind){G=baseState(kind);$('ticker').innerHTML='';const g=cur();
+ if(kind==='boss'){G.shields=D().bossLives;G.boss={x:W/2,y:TOP-120,hp:100,entering:true,vx:0,vy:0,rot:0,word:otherWord(),atkT:3,dash:null};$('bossbar').classList.add('on');
+  ticker('警報',`部首大雜燴從北方接近，會丟出字雨彈；收集${g.r}部的朋友可以削弱它`,'warn');alertOn('部首大雜燴接近中',2.5)}
+ else{$('bossbar').classList.remove('on');ticker('旋風季',`靠近${g.r}部的字收集朋友，躲開不同部首的旋風字。第 1 波開始！`,'good')}
+ spawnFriend();if(D().c0>0&&kind==='season')for(let i=0;i<D().c0;i++){spawnChaser();G.waveSpawned++}
+ hideOverlay();updateHud(true);speak(`找${g.r}部的字`)}
+function pause(){if(G.state==='running'){G.state='paused';setOverlay('<h2>休息一下</h2><p>時間和文字都停下來了。<br>準備好，再繼續。</p><div class="btns"><button class="primary" id="resume">繼續</button><button id="quit">結束這一回合</button><button id="toT">回到標題</button></div>');$('resume').onclick=resume;$('quit').onclick=()=>finish('自主結束');$('toT').onclick=title}else if(G.state==='paused')resume()}
+function resume(){G.state='running';G.grace=Math.max(G.grace,1.5);keys.clear();hideOverlay()}
+function coach(o){G.mistakes.push({word:o.word,r:o.g.r});sfx.hit();removeChar(o);G.wrongCD=1.6;G.state='coaching';const g=cur();
+ setOverlay(`<div class="eyebrow">停一下，一起看</div><h2>「${o.word}」是${o.g.r}部</h2><p>這回合要找的是「${g.r}部」。<br>「${o.word}」的部首是「${o.g.r}」${o.g.shape!==o.g.r?'（寫成「'+o.g.shape+'」）':''}，要躲開。</p><div class="chips"><span>${o.word} → ${o.g.r}部</span><span>朋友 → ${g.words.slice(0,4).join('、')}</span></div><p>準備好再出發，葉子會保留。</p><div class="btns"><button class="primary" id="learned">我知道了，繼續</button></div>`);
+ speak(`${o.word}是${o.g.r}部。這回合要找${g.r}部。`);$('learned').onclick=resume}
+function removeChar(o){G.chars=G.chars.filter(c=>c!==o);if(!o.counted&&!o.friend&&!o.strong&&G.kind==='season'&&o.wave===G.wave)G.waveDone++;o.counted=true}
+function blowAway(o,sp=420){o.dying=.001;const a=Math.atan2(o.y-G.player.y,o.x-G.player.x);o.vx=Math.cos(a)*sp;o.vy=Math.sin(a)*sp}
+function useWind(){if(G.state!=='running'||!G.wind)return;G.wind--;sfx.wind();shout('🌬 吹散，發動！！');let n=0;
+ for(const c of G.chars){if(c.friend||c.dying)continue;if(c.strong){if(c.inv>0){float(c.x,c.y-sRing(c)-14,'無敵中','#7a4a12');continue}weakenStrong(c,'wind');continue}blowAway(c);if(G.kind==='season'&&c.wave===G.wave)G.waveDone++;c.counted=true;n++}
+ G.fx=G.fx.filter(f=>f.type!=='rain');
+ if(G.boss&&!G.boss.entering){damageBoss(6,'吹散')}
+ G.wrongCD=3;G.grace=Math.max(G.grace,.8);if(n)ticker('吹散',`一陣風吹走了 ${n} 個不同部首的字`,'good');updateHud(true)}
+function weakenStrong(o,how){o.lives--;sfx.block();float(o.x,o.y-sRing(o)-20,o.lives>0?`強旋風剩 ${o.lives} 圈`:'打散了！','#7a4a12');
+ if(o.lives<=0){blowAway(o,300);G.strongKilled++;G.leaves+=5;ticker('打散',`強旋風「${o.word}」（${o.g.r}部）被${how==='wind'?'風吹':'守護葉撞'}散了，+5 片葉子`,'good');shout('強旋風打散！')}}
+function damageBoss(n,src){const b=G.boss;b.hp=Math.max(0,b.hp-n);float(b.x,b.y-eyeR()-20,`−${n}%`,'#7a3a28');if(b.hp<=0)finish('打散了部首大雜燴',true)}
+function finish(reason,win=false){if(G.state==='done')return;const was=G;G.state='done';if('speechSynthesis'in window)speechSynthesis.cancel();const g=cur();
+ store.total+=was.found.length;store.best=Math.max(store.best,was.leaves);store.bestF=Math.max(store.bestF||0,was.found.length);if(was.kind==='season')store.bestWave=Math.max(store.bestWave||0,was.wave+1);if(win&&was.kind==='boss')store.bossWin=1;
+ store.seen[g.r]=[...new Set([...(store.seen[g.r]||[]),...was.found])];save();
+ const review=[...new Map([...was.mistakes,...was.blocked].map(m=>[m.word,m])).values()];
+ const boss=was.kind==='boss';
+ const head=boss?(win?`<h2>你打散了部首大雜燴！</h2><p>用時 ${fmt(was.elapsed)} · ${D().name}</p>`:`<h2>這次沒有撐過大雜燴</h2><p>${reason} · 它還剩 ${Math.ceil(was.boss.hp)}% 的力量</p>`)
+  :`<h2>${reason==='5 分鐘到'?'撐過了整個旋風季！':'這一回合，完成了'}</h2><p>${reason} · ${D().name} · 到達第 ${was.wave+1} 波</p>`;
+ setOverlay(`<div class="eyebrow">${boss?'BOSS 戰結果':'這個旋風季，你收集了'}</div>${head}<p class="big">🍃 ${was.leaves}</p>
+ <div class="result-grid"><div><small>找到朋友</small><b>${was.found.length}</b></div><div><small>擦身而過</small><b>${was.grazes}</b></div><div><small>${boss?'被打中':'碰到不同部首'}</small><b>${was.mistakes.length}</b></div><div><small>守護葉擋下</small><b>${was.blocked.length}</b></div><div><small>${boss?'剩下守護葉':'打散強旋風'}</small><b>${boss?was.shields:was.strongKilled}</b></div><div><small>遊玩時間</small><b>${fmt(was.elapsed)}</b></div></div>
+ <div class="chips">${[...new Set(was.found)].map(w=>`<span>${w} · ${g.r}部</span>`).join('')||'<span>下一回合，試著靠近同部首的字。</span>'}</div>
+ <div class="review">${review.length?'再看一次：'+review.map(m=>`${m.word}（${m.r}部）`).join('、'):'說說看：哪些字和你是同一個部首？'}</div>
+ <div class="btns"><button class="primary" id="again">${boss?'再挑戰一次':'再來一季'}</button><button id="toTitle">返回標題</button><button id="copy">複製成績</button></div>`);
+ $('again').onclick=()=>start(was.kind);$('toTitle').onclick=title;
+ $('copy').onclick=async()=>{const t=boss?`我在「部首森林：旋風大作戰」${win?'打散了部首大雜燴':'挑戰部首大雜燴'}，收集 ${was.leaves} 片葉子！🍃`:`我在「部首森林：旋風大作戰」找到 ${was.found.length} 個${g.r}部的朋友、撐到第 ${was.wave+1} 波，收集 ${was.leaves} 片葉子！🍃`;let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){}$('copy').textContent=ok?'已複製 ✓':'無法複製'}}
+
+/* ================= modals ================= */
+function openModal(html){$('sheet').innerHTML=html;$('modal').hidden=false;if(G.state==='running')pause();$('sheet').querySelector('.close').onclick=closeModal;requestAnimationFrame(()=>$('sheet').querySelector('.close').focus())}
+function closeModal(){$('modal').hidden=true}
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+function help(){openModal(`<button class="close">知道了</button><div class="eyebrow">HOW TO PLAY</div><h2>怎麼玩</h2><ul>
+<li><b>👆</b><span>拖曳畫面、用左下搖桿或方向鍵，移動綠色的「我」。</span></li>
+<li><b>✓</b><span>碰到<b>同部首</b>的字＝找到朋友，+2 片葉子。每 6 個朋友送 1 次吹散。</span></li>
+<li><b>🌀</b><span><b>不同部首</b>的字會變成旋風追著你。外圈＋1、虛線內圈＋2：<b>擦身而過、沒被中心碰到</b>，離開時拿到葉子。被中心碰到＝停下來看清楚它是什麼部。</span></li>
+<li><b>🌊</b><span>旋風字一波一波來（第 n 波 x/總數），追一陣子會自己消散。整波過去可以喘口氣 3 秒，+3 片葉子；速度會一波比一波快。</span></li>
+<li><b>🚨</b><span>每過兩波會發布<b>強旋風警報</b>：紅色多圈的強旋風碰到紅圈就算碰錯；黃色外圈可以擦身拿葉子。用守護葉撞它或吹散，都能削掉一圈（剛出現的 5 秒無敵）。</span></li>
+<li><b>🛡</b><span>撿到<b>守護葉</b>：被碰到時自動擋下一次（仍會告訴你它是什麼部）。</span></li>
+<li><b>🌬</b><span>撿到<b>風之葉</b>：按右下「吹散」或 Q 鍵，把畫面上的旋風字吹走（強旋風只削一圈）。</span></li>
+<li><b>⏸</b><span>每季 5 分鐘。空白鍵或右上 ⏸ 隨時休息；切換視窗會自動暫停。沒有閃光，速度是一點一點變快。</span></li></ul>
+<div class="teacher"><h2 style="font-size:17px">給老師</h2><p>練習目標：部首辨識、選擇性注意與抑制反應，不限年級。建議順序：「簡單＋部首提示」→ 關閉提示 →「普通」→「困難」→ BOSS 戰。一般旋風字與朋友字的字卡外觀相同（朋友靜止、旋風會追），學生需看字判斷；強旋風與 BOSS 一律是不同部首，屬於額外挑戰。</p><p>「擦身而過」鼓勵靠近時停下、轉向（抑制反應）；若學生容易衝動碰撞，可先關閉。一般模式碰錯會暫停並解說，按下「我知道了」才恢復；BOSS 戰為維持節奏不暫停，改以提示條說明並扣守護葉。下方跑馬燈會重複播報「字＋部首」，可作為口語複述的材料。回合結束列出待複習字，不把碰撞次數換算成識字正確率。</p><p>字庫（依預先指定部首分類，含某形狀不代表就是該部首）：${BANK.map(g=>g.r+'部：'+g.words.join('、')).join('；')}。</p><p>紀錄只存在這台裝置的瀏覽器，不上傳任何學生資料。語音依裝置繁體中文語音支援而定。</p></div>`)}
+function codex(i){i=(i+BANK.length)%BANK.length;const g=BANK[i],seen=store.seen[g.r]||[];
+ openModal(`<button class="close">返回</button><div class="eyebrow">部首圖鑑 · ${i+1} / ${BANK.length}</div><div class="codex-top"><div class="codex-rad">${g.r}</div><div><h3>${g.r}部・${g.name}</h3><p>${g.shape!==g.r?'常見寫法「'+g.shape+'」，':''}${g.pos}。</p><p>已找到 ${seen.length} / ${g.words.length} 個朋友</p></div></div>
+ <div class="words">${g.words.map(w=>`<div class="${seen.includes(w)?'got':''}">${w}<small>${seen.includes(w)?'✓ 找到過':g.r+'部'}</small></div>`).join('')}</div>
+ <div class="pager"><button id="cPrev">‹ 上一個</button><span>找到過的字會亮起來</span><button id="cNext">下一個 ›</button></div>`);
+ $('cPrev').onclick=()=>codex(i-1);$('cNext').onclick=()=>codex(i+1)}
+
+/* ================= HUD ================= */
+let hudCache='';
+function waveNeed(){return D().base+G.wave}
+function waveConc(){return Math.min(D().cMax,D().c0+Math.floor(G.wave/2))}
+function updateHud(force){const g=cur(),T=G.state==='title';
+ const live=T?0:G.chars.filter(c=>!c.friend&&!c.dying).length;
+ const s=T?[0,0,LIMIT,0,0,0,0,0]:[G.found.length,G.leaves,Math.ceil(Math.max(0,LIMIT-G.elapsed)),G.shields,G.wind,G.wave,G.waveDone,live,G.breakT>=0?1:0,G.boss?Math.ceil(G.boss.hp):0,G.kind];
+ const key=s.join()+g.r+G.state;if(!force&&key===hudCache)return;hudCache=key;
+ $('radical').textContent=g.r;$('targetName').textContent=g.r+'部';$('score').textContent=s[0];$('leaves').textContent=s[1];$('time').textContent=fmt(s[2]);
+ const boss=G.kind==='boss'&&!T;$('shieldLbl').textContent=boss?'守護葉（命）':'守護葉';$('shields').textContent=s[3]?'🛡'.repeat(s[3]):'—';
+ $('wave').style.display=boss?'none':'';
+ $('wave').innerHTML=T?`<small>第 1 波</small>0/${D().base}`:(G.breakT>=0?`<small>喘口氣</small>第 ${G.wave+1} 波結束`:`<small>第 ${G.wave+1} 波</small>${Math.min(G.waveDone,waveNeed())}/${waveNeed()}・場上 ${live}`);
+ const on=!T&&G.wind>0&&G.state==='running';$('windBtn').classList.toggle('on',on);$('windBtn').textContent='🌬 吹散'+(G.wind>1?' ×'+G.wind:'');
+ if(G.boss)$('bfill').style.width=G.boss.hp+'%';$('pauseBtn').disabled=T||G.state==='done';$('muteBtn').textContent=store.mute?'🔇':'🔊'}
+
+/* ================= game loop ================= */
+const chaseSpeed=()=>Math.min(160,D().speed*(1+G.wave*.15)+G.elapsed*.2);
+const eyeR=()=>34+(1-G.boss.hp/100)*56;
+function movePlayer(dt){const p=G.player;let ix=(keys.has('right')?1:0)-(keys.has('left')?1:0)+joyVec.x,iy=(keys.has('down')?1:0)-(keys.has('up')?1:0)+joyVec.y,il=Math.hypot(ix,iy);
+ if(il>.05){dest=null;const k=Math.min(il,1)/il;p.x+=ix*k*230*dt;p.y+=iy*k*230*dt}else if(dest){const dx=dest.x-p.x,dy=dest.y-p.y,d=Math.hypot(dx,dy);if(d>1){const s=Math.min(d,270*dt);p.x+=dx/d*s;p.y+=dy/d*s}}
+ p.x=Math.max(32,Math.min(W-32,p.x));p.y=Math.max(TOP+36,Math.min(fieldH()-44,p.y))}
+function hurt(o,label){ // o: {word,g}
+ const p=G.player;
+ if(G.kind==='boss'){if(G.inv>0)return false;G.shields--;G.inv=1.6;G.mistakes.push({word:o.word,r:o.g.r});sfx.hit();navigator.vibrate&&navigator.vibrate(120);
+  ticker('受傷',`「${o.word}」是${o.g.r}部，不是${cur().r}部。守護葉剩 ${Math.max(0,G.shields)} 片`,'warn');speak(`${o.word}是${o.g.r}部`);
+  if(G.shields<=0)finish('守護葉用完了');return true}
+ if(G.shields>0){G.shields--;G.blocked.push({word:o.word,r:o.g.r});sfx.block();shout('🛡 擋下了！');ticker('擋下',`守護葉擋下了：「${o.word}」是${o.g.r}部`,'calm');speak(`${o.word}是${o.g.r}部`);G.grace=.8;
+  if(o.strong){if(o.inv>0)float(o.x,o.y-sRing(o)-14,'無敵中','#7a4a12');else weakenStrong(o,'shield');const a=Math.atan2(p.y-o.y,p.x-o.x);p.x+=Math.cos(a)*60;p.y+=Math.sin(a)*60}
+  else{blowAway(o,380);if(o.wave===G.wave)G.waveDone++;o.counted=true}return true}
+ coach(o);return 'stop'}
+function step(dt){const p=G.player,d0=D();G.elapsed+=dt;G.grace=Math.max(0,G.grace-dt);G.inv=Math.max(0,G.inv-dt);
+ if(G.elapsed>=LIMIT){finish(G.kind==='boss'?'5 分鐘到':'5 分鐘到');return}
+ if(LIMIT-G.elapsed<=30&&!G.warned){G.warned=true;ticker('提醒','剩下 30 秒，旋風最快的時候！','calm')}
+ movePlayer(dt);
+ /* chars */
+ for(const o of [...G.chars]){o.age+=dt;o.rot+=dt*(RM?0:(o.strong?1.1:.7));if(o.inv)o.inv=Math.max(0,o.inv-dt);
+  if(o.dying){o.dying+=dt;o.x+=o.vx*dt;o.y+=o.vy*dt;if(o.dying>.9)G.chars=G.chars.filter(c=>c!==o);continue}
+  if(!o.friend){
+   if(o.age>o.life){o.dying=.001;o.vx*=.3;o.vy*=.3;if(!o.counted&&!o.strong&&o.wave===G.wave&&G.kind==='season')G.waveDone++;o.counted=true;
+    ticker(o.strong?'遠離':'消散',o.strong?`強旋風「${o.word}」（${o.g.r}部）遠離了`:`第 ${o.no} 號旋風字「${o.word}」（${o.g.r}部）消散了`,'calm');continue}
+   const sp=chaseSpeed()*(o.strong?.8:1)*(G.grace>0?.35:1),dx=p.x-o.x,dy=p.y-o.y,d=Math.hypot(dx,dy)||1;let tx=dx/d*sp,ty=dy/d*sp;
+   for(const q of G.chars){if(q===o||q.friend||q.dying)continue;const ex=o.x-q.x,ey=o.y-q.y,e=Math.hypot(ex,ey)||1,want=(o.strong||q.strong)?170:110;if(e<want){tx+=ex/e*(want-e)*.5;ty+=ey/e*(want-e)*.5}}
+   if(G.boss){const ex=o.x-G.boss.x,ey=o.y-G.boss.y,e=Math.hypot(ex,ey)||1;if(e<170){tx+=ex/e*(170-e);ty+=ey/e*(170-e)}}
+   o.vx+=(tx-o.vx)*Math.min(1,dt*3);o.vy+=(ty-o.vy)*Math.min(1,dt*3);o.x+=o.vx*dt;o.y+=o.vy*dt}
+  const d=Math.hypot(o.x-p.x,o.y-p.y);
+  if(o.friend){if(d<HIT){collect(o);if(G.state!=='running')return}continue}
+  if(G.grace>0)continue;
+  if(d<hitR(o)){const r=hurt(o,'小旋風');if(r==='stop'||G.state!=='running')return;if(G.kind==='boss'){blowAway(o,380)}continue}
+  if(opt.graze){const outR=o.strong?sRing(o)+44:OUT,inR=o.strong?outR:IN;const dep=d<inR?(o.strong?1:2):d<outR?1:0;if(dep>o.depth)o.depth=dep;
+   if(o.depth&&d>outR+6){G.grazes++;G.leaves+=o.depth;sfx.graze(o.depth);float(p.x,p.y-50,`+${o.depth} 擦身而過`);o.depth=0}}}
+ /* friend respawn */
+ G.friendCD-=dt;G.wrongCD-=dt;
+ const nf=G.chars.filter(c=>c.friend).length,need=G.kind==='boss'?2:(opt.diff==='easy'?2:1);if(nf<need&&G.friendCD<=0){spawnFriend();G.friendCD=.6}
+ if(G.kind==='season')seasonLogic(dt);else bossLogic(dt);
+ if(G.state!=='running')return;
+ /* pickups */
+ G.shieldClock-=dt;G.windClock-=dt;const cap=G.kind==='boss'?d0.bossLives+1:d0.sMax;
+ if(G.shieldClock<=0){G.shieldClock=(14+Math.random()*10)/d0.freq;if(G.shields<cap&&!G.pickups.some(k=>k.type==='shield'))G.pickups.push({type:'shield',age:0,...freeSpot(120)})}
+ if(G.windClock<=0){G.windClock=(32+Math.random()*20)/d0.freq;if(G.wind<3&&!G.pickups.some(k=>k.type==='wind'))G.pickups.push({type:'wind',age:0,...freeSpot(120)})}
+ for(const k of [...G.pickups]){k.age+=dt;if(k.age>14){G.pickups=G.pickups.filter(x=>x!==k);continue}
+  if(Math.hypot(k.x-p.x,k.y-p.y)<42){G.pickups=G.pickups.filter(x=>x!==k);sfx.pickup();
+   if(k.type==='shield'){G.shields++;float(k.x,k.y-30,'+1 🛡');toast('撿到守護葉：被碰到時擋下一次')}else{G.wind++;float(k.x,k.y-30,'+1 🌬');toast('撿到風之葉：按「吹散」把旋風字吹走')}}}}
+function collect(o){G.found.push(o.word);G.leaves+=2;sfx.collect();float(o.x,o.y-40,'+2 🍃');G.chars=G.chars.filter(c=>c!==o);G.friendCD=.6;
+ const t=`「${o.word}」是${o.g.r}部，找到朋友了！`;
+ if(G.kind==='boss'&&!G.boss.entering){damageBoss(10,'朋友');if(G.state!=='running')return}
+ if(G.found.length%FRIEND_BONUS===0&&G.kind==='season'){G.wind++;shout(`${G.found.length} 個朋友！+1 吹散`)}
+ ticker('朋友',`「${o.word}」是${o.g.r}部，找到朋友了！——部首「${o.g.shape}」`,'good');speak(t)}
+function seasonLogic(dt){
+ const live=G.chars.filter(c=>!c.friend&&!c.dying&&!c.strong).length;
+ if(G.breakT<0){
+  if(G.waveSpawned<waveNeed()&&live<waveConc()&&G.wrongCD<=0){spawnChaser();G.waveSpawned++;G.wrongCD=1.4}
+  if(G.waveDone>=waveNeed()){G.breakT=3;G.leaves+=3;sfx.wave();shout(`第 ${G.wave+1} 波過關！`);ticker('喘口氣',`第 ${G.wave+1} 波結束，+3 片葉子。3 秒後……`,'good')}}
+ else{G.breakT-=dt;if(G.breakT<=0){G.breakT=-1;G.wave++;G.waveSpawned=0;G.waveDone=0;G.wrongCD=.5;
+  ticker(`第 ${G.wave+1} 波`,`旋風字有 ${waveNeed()} 個，同時最多 ${waveConc()} 個，速度變快了`,'warn');
+  if(G.wave%2===0)spawnStrong()}}}
+function bossLogic(dt){const b=G.boss,p=G.player;b.rot+=dt*(RM?0:.6);
+ if(b.entering){b.y+=90*dt;if(b.y>=TOP+(fieldH()-TOP)*.3){b.entering=false;toast('它來了！看預警再閃','提示','warn')}return}
+ if(b.dash){b.dash.t+=dt;if(b.dash.t<1.1){/* aiming */b.dash.tx=p.x;b.dash.ty=p.y}else if(b.dash.t<1.1+.7){if(!b.dash.go){b.dash.go=true;sfx.warn();const dx=b.dash.tx-b.x,dy=b.dash.ty-b.y,d=Math.hypot(dx,dy)||1;b.vx=dx/d*460;b.vy=dy/d*460}b.x+=b.vx*dt;b.y+=b.vy*dt}else{b.dash=null}}
+ else{const dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy)||1,sp=18+(1-b.hp/100)*16;b.x+=dx/d*sp*dt;b.y+=dy/d*sp*dt}
+ b.x=Math.max(60,Math.min(W-60,b.x));b.y=Math.max(TOP+60,Math.min(fieldH()-60,b.y));
+ if(Math.hypot(b.x-p.x,b.y-p.y)<eyeR()+26){hurt(b.word,'大雜燴的中心');if(G.state!=='running')return;const a=Math.atan2(p.y-b.y,p.x-b.x);p.x+=Math.cos(a)*70;p.y+=Math.sin(a)*70}
+ b.atkT-=dt;if(b.atkT<=0&&!b.dash){b.word=otherWord();const r=Math.random(),fast=b.hp<50;b.atkT=(fast?2.6:3.4)+Math.random();
+  if(r<.45){const n=fast?4:3;for(let i=0;i<n;i++){const a=Math.random()*6.28,dd=i?60+Math.random()*90:0;G.fx.push({type:'rain',x:Math.max(40,Math.min(W-40,p.x+Math.cos(a)*dd)),y:Math.max(TOP+40,Math.min(fieldH()-40,p.y+Math.sin(a)*dd)),r:48,t:0,warn:1.4,w:otherWord()})}ticker('預警','字雨彈要落下了：離開紅色虛線圈！','warn')}
+  else if(r<.75){b.dash={t:0,tx:p.x,ty:p.y};ticker('預警','大雜燴在瞄準你，準備衝過來！','warn')}
+  else{for(let i=0;i<(fast?2:1);i++)spawnChaser({life:8});ticker('預警','大雜燴丟出了小旋風字！','warn')}}
+ for(const f of [...G.fx]){f.t+=dt;if(f.type==='rain'){if(!f.hit&&f.t>=f.warn){f.hit=true;sfx.warn();if(Math.hypot(f.x-p.x,f.y-p.y)<f.r+20){hurt(f.w,'字雨彈');if(G.state!=='running')return}}if(f.t>f.warn+.7)G.fx=G.fx.filter(x=>x!==f)}}}
+
+/* ================= drawing ================= */
+function drawBg(){ctx.fillStyle=G.kind==='boss'&&G.state!=='title'?'#e8ece0':'#eef2e6';ctx.fillRect(0,0,W,H);ctx.fillStyle=bgPat;ctx.fillRect(0,0,W,H);ctx.fillStyle='#dbe5cf80';
+ ctx.save();ctx.translate(30,H-20);ctx.rotate(-.4);ctx.beginPath();ctx.ellipse(0,0,160,105,0,0,7);ctx.fill();ctx.restore();ctx.save();ctx.translate(W-10,-20);ctx.rotate(-.4);ctx.beginPath();ctx.ellipse(0,0,170,110,0,0,7);ctx.fill();ctx.restore()}
+function tile(word,g,scale=1){ctx.save();ctx.scale(scale,scale);ctx.fillStyle='#c4cfba66';rr(-29,-31,58,70,15);ctx.fill();ctx.fillStyle='#fffef8';ctx.strokeStyle='#c5cebc';ctx.lineWidth=2;rr(-29,-35,58,70,15);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#243f35';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 36px ${HAN}`;ctx.fillText(word,0,opt.hints?-7:0);
+ if(opt.hints){ctx.font='500 11px sans-serif';ctx.fillStyle='#617354';ctx.fillText(g.r+'部'+(g.shape!==g.r?'・'+g.shape:''),0,22)}ctx.restore()}
+function drawChar(o,t){const a=o.dying?Math.max(0,1-o.dying/.9):1;ctx.save();ctx.globalAlpha=a;ctx.translate(o.x,o.y);
+ if(o.strong){const R=sRing(o),Y=R+44;
+  ctx.fillStyle='#f6d77a33';circle(0,0,Y);ctx.fill();ctx.setLineDash([7,9]);ctx.lineDashOffset=RM?0:-t*16;ctx.strokeStyle='#d4a63aaa';ctx.lineWidth=2;circle(0,0,Y);ctx.stroke();ctx.setLineDash([]);
+  for(let i=0;i<o.lives;i++){ctx.strokeStyle=o.inv>0?'#c08a7a':'#c4553f';ctx.globalAlpha=a*(o.inv>0?.5:.85);ctx.lineWidth=3;circle(0,0,40+(i+1)*14);ctx.stroke()}ctx.globalAlpha=a;
+  ctx.strokeStyle='#c4553f55';ctx.lineWidth=4;ctx.lineCap='round';for(let i=0;i<4;i++){const s=o.rot+i*1.571;ctx.beginPath();ctx.arc(0,0,R+22,s,s+.8);ctx.stroke()}
+  tile(o.word,o.g,1.15);if(o.inv>0){ctx.fillStyle='#7a4a12';ctx.font='700 12px sans-serif';ctx.textAlign='center';ctx.fillText('無敵 '+Math.ceil(o.inv),0,-48)}ctx.restore();return}
+ const gr=ctx.createRadialGradient(0,0,20,0,0,OUT);gr.addColorStop(0,'#ffffff70');gr.addColorStop(1,'#ffffff00');ctx.fillStyle=gr;circle(0,0,OUT);ctx.fill();
+ ctx.setLineDash([6,9]);ctx.lineDashOffset=RM?0:-t*14;ctx.strokeStyle='#8a9a7f80';ctx.lineWidth=1.6;circle(0,0,OUT);ctx.stroke();
+ ctx.setLineDash([3,6]);ctx.strokeStyle='#7d93a866';circle(0,0,IN);ctx.stroke();ctx.setLineDash([]);
+ ctx.strokeStyle='#8a9a7f55';ctx.lineWidth=3;ctx.lineCap='round';for(let i=0;i<3;i++){const s=o.rot+i*2.094;ctx.beginPath();ctx.arc(0,0,70,s,s+.8);ctx.stroke()}
+ tile(o.word,o.g);ctx.restore()}
+function drawBoss(t){const b=G.boss,e=eyeR();ctx.save();ctx.translate(b.x,b.y);
+ if(b.dash&&!b.dash.go){ctx.setLineDash([4,8]);ctx.strokeStyle='#c4553f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(b.dash.tx-b.x,b.dash.ty-b.y);ctx.stroke();ctx.setLineDash([]);
+  const a=Math.atan2(b.dash.ty-b.y,b.dash.tx-b.x);ctx.save();ctx.translate(b.dash.tx-b.x,b.dash.ty-b.y);ctx.rotate(a);ctx.fillStyle='#c4553f';ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-10,-9);ctx.lineTo(-10,9);ctx.fill();ctx.restore()}
+ const g=ctx.createRadialGradient(0,0,e,0,0,e+110);g.addColorStop(0,'#b4553f22');g.addColorStop(1,'#b4553f00');ctx.fillStyle=g;circle(0,0,e+110);ctx.fill();
+ ctx.strokeStyle='#9c5a4877';ctx.lineWidth=5;ctx.lineCap='round';for(let i=0;i<6;i++){const s=b.rot+i*1.047;ctx.beginPath();ctx.arc(0,0,e+40+(i%2)*22,s,s+.9);ctx.stroke()}
+ ctx.fillStyle='#fff8ee';circle(0,0,e);ctx.fill();ctx.setLineDash([6,6]);ctx.strokeStyle='#c4553f';ctx.lineWidth=3;circle(0,0,e);ctx.stroke();ctx.setLineDash([]);
+ tile(b.word.word,b.word.g,1.2);ctx.restore()}
+function drawPlayer(t){const p=G.player;ctx.save();ctx.translate(p.x,p.y);if(G.inv>0&&!RM)ctx.globalAlpha=.55+.45*Math.abs(Math.sin(t*6));
+ if(G.grace>0&&G.state==='running'){ctx.strokeStyle='#306a5455';ctx.setLineDash([4,6]);ctx.lineWidth=2;circle(0,0,44);ctx.stroke();ctx.setLineDash([])}
+ ctx.fillStyle='#306a5420';circle(0,0,37);ctx.fill();ctx.fillStyle='#306a54';ctx.strokeStyle='#fff';ctx.lineWidth=3;circle(0,0,31);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#fff';ctx.font=`700 30px ${HAN}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(cur().r,0,1);
+ ctx.fillStyle='#fff';rr(-15,36,30,18,9);ctx.fill();ctx.fillStyle='#306a54';ctx.font='700 12px sans-serif';ctx.fillText('我',0,45.5);ctx.restore()}
+function draw(t){drawBg();if(!G.player)return;
+ if(dest&&G.state==='running'){ctx.strokeStyle='#306a5466';ctx.lineWidth=2;circle(dest.x,dest.y,10);ctx.stroke()}
+ for(const f of G.fx){if(f.type!=='rain')continue;ctx.save();if(!f.hit){const k=Math.min(1,f.t/f.warn);ctx.fillStyle='#c4553f1c';circle(f.x,f.y,f.r);ctx.fill();ctx.fillStyle='#c4553f33';circle(f.x,f.y,f.r*k);ctx.fill();ctx.setLineDash([5,6]);ctx.strokeStyle='#c4553f';ctx.lineWidth=2.5;circle(f.x,f.y,f.r);ctx.stroke()}
+  else{ctx.globalAlpha=Math.max(0,1-(f.t-f.warn)/.7);ctx.translate(f.x,f.y);tile(f.w.word,f.w.g,.9)}ctx.restore()}
+ for(const k of G.pickups){const b=RM?0:Math.sin(t*2)*3;ctx.save();ctx.globalAlpha=k.age>11?.5:1;ctx.fillStyle=k.type==='shield'?'#fff8e6':'#eef8e4';ctx.strokeStyle=k.type==='shield'?'#d9b46a':'#8fbf6a';ctx.lineWidth=2;circle(k.x,k.y+b,21);ctx.fill();ctx.stroke();ctx.font='20px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(k.type==='shield'?'🛡':'🌬',k.x,k.y+b+1);ctx.restore()}
+ for(const o of G.chars)if(o.friend)drawChar(o,t);for(const o of G.chars)if(!o.friend)drawChar(o,t);
+ if(G.boss)drawBoss(t);drawPlayer(t);
+ for(const f of G.floats){ctx.save();ctx.globalAlpha=Math.max(0,1-f.t/(f.big?1.6:1.2))*(f.big?.9:1);ctx.fillStyle=f.color;ctx.font=f.big?'900 20px sans-serif':'800 15px sans-serif';ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle='#fff';ctx.strokeText(f.text,f.x,f.y-f.t*26);ctx.fillText(f.text,f.x,f.y-f.t*26);ctx.restore()}}
+function tick(now){const dt=Math.min((now-last)/1000,.035);last=now;clock+=dt;measure();
+ if(G.state==='running')step(dt);
+ if(G.floats){for(const f of G.floats)f.t+=dt;G.floats=G.floats.filter(f=>f.t<(f.big?1.6:1.2))}
+ if(alertT>0){alertT-=dt;if(alertT<=0)$('hud').classList.remove('alarm')}
+ if(G.state!=='title')updateHud();draw(clock);requestAnimationFrame(tick)}
+
+/* ================= input ================= */
+let dragging=false;
+cv.addEventListener('pointerdown',e=>{if(G.state!=='running')return;dragging=true;dest={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);e.preventDefault()});
+cv.addEventListener('pointermove',e=>{if(dragging&&G.state==='running')dest={x:e.clientX,y:e.clientY}});
+cv.addEventListener('pointerup',()=>dragging=false);cv.addEventListener('pointercancel',()=>{dragging=false;dest=null});
+const joy=$('joy'),knob=$('knob');let joyId=null;
+function resetJoy(){joyVec={x:0,y:0};joyId=null;knob.style.transform='';joy.classList.remove('act')}
+function joyMove(e){const r=joy.getBoundingClientRect();let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);const d=Math.hypot(dx,dy),max=40;if(d>max){dx=dx/d*max;dy=dy/d*max}knob.style.transform=`translate(${dx}px,${dy}px)`;joyVec={x:dx/max,y:dy/max}}
+joy.addEventListener('pointerdown',e=>{if(G.state!=='running')return;joyId=e.pointerId;joy.classList.add('act');joy.setPointerCapture(e.pointerId);joyMove(e);e.preventDefault()});
+joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>joy.addEventListener(ev,resetJoy));
+const keyMap={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down',A:'left',D:'right',W:'up',S:'down'};
+addEventListener('keydown',e=>{if(e.target.matches('input'))return;if(e.key==='Escape'&&!$('modal').hidden){closeModal();return}
+ if(e.code==='Space'&&(G.state==='running'||G.state==='paused')&&$('modal').hidden){e.preventDefault();if(!e.repeat)pause();return}
+ if((e.key==='q'||e.key==='Q')&&G.state==='running'){useWind();return}
+ if(keyMap[e.key]&&G.state==='running'){e.preventDefault();keys.add(keyMap[e.key])}});
+addEventListener('keyup',e=>keys.delete(keyMap[e.key]));
+addEventListener('blur',()=>{keys.clear();resetJoy();if(G.state==='running')pause()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&G.state==='running')pause()});
+$('pauseBtn').onclick=pause;$('windBtn').onclick=useWind;$('muteBtn').onclick=()=>{store.mute=!store.mute;save();audio();updateHud(true)};
+resize();title();requestAnimationFrame(tick);
+</script></body></html>
