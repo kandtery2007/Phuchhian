@@ -1,0 +1,516 @@
+<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="國小中高年級避難收容互動課程"><title>避難收容行動課</title>
+<style>
+[hidden]{display:none!important}
+*{box-sizing:border-box}body{margin:0;background:#edf1ef;color:#142d32;font:1rem/1.65 'Noto Sans TC',system-ui,sans-serif}button,input,textarea,select{font:inherit}button,select{cursor:pointer}button{border:1px solid #adc2bd;background:#fff;color:#123b3b;border-radius:10px;padding:.55rem .85rem;font-weight:700}button:hover{background:#ddf1e9}button[aria-pressed=true],.primary{background:#11564e;color:white;border-color:#11564e}button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #bc720a;outline-offset:3px}header{background:#113836;color:white}header div,main{max-width:1190px;margin:auto;padding:18px 24px}header div{display:flex;justify-content:space-between;align-items:center;gap:12px}header strong{font-size:1.22rem}header span{color:#bde6d9}main{padding-top:28px}.layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:22px}nav,.panel{background:white;border:1px solid #d4e0dc;border-radius:18px;padding:18px}nav{align-self:start}nav button{display:block;width:100%;text-align:left;margin-top:9px}h1,h2,h3,p{margin-top:0}h1{line-height:1.2;font-size:clamp(1.8rem,4vw,3rem);margin-bottom:.65rem}h2{font-size:1.35rem;margin-bottom:.4rem}h3{font-size:1.05rem}.hero{background:#164944;color:white;border-radius:18px;padding:24px;margin-bottom:16px}.hero p{margin-bottom:0;color:#d9eee9}.tabs,.controls,.choices{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.tabs button small{display:block}.panel{margin-bottom:16px}.tag{color:#71430f;background:#fff0d2;border-radius:6px;padding:2px 8px;font-weight:700}.model{height:335px;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 55% 50%,#fff,#dce9e5);border-radius:14px;perspective:1000px;touch-action:pan-y}.floor{position:relative;width:340px;height:240px;background:#b6c9be;border:8px solid #78968a;transform-style:preserve-3d;transform:rotateX(var(--tilt,42deg)) rotateZ(var(--angle,-19deg));box-shadow:0 0 0 3px #45675d}.zone{position:absolute;width:95px;height:67px;padding:0;border:1px solid #29483e;border-radius:5px;background:var(--color);transform:translateZ(12px);box-shadow:inset 0 -7px #0002;color:#132c30;transform-style:preserve-3d}.zone[aria-pressed=true]{outline:3px solid #163c36;color:#fff}.zone::before,.zone::after{content:'';position:absolute;background:#56796c;pointer-events:none}.zone::before{top:100%;left:0;width:100%;height:12px;transform-origin:top;transform:rotateX(-90deg)}.zone::after{top:0;left:100%;width:12px;height:100%;transform-origin:left;transform:rotateY(90deg)}.hall{position:absolute;inset:99px 0 auto;text-align:center;font-weight:800;border-block:2px dashed #45675d;color:#274e43}.gate,.wall{position:absolute}.wall{background:#678b7d;transform-origin:bottom;transform:rotateX(-90deg);height:25px;bottom:100%;width:100%}.gate{bottom:4px;right:7px;font-weight:700}.crate{background:#eeb565;width:85px;height:30px;left:125px;top:98px}.feedback{min-height:2.1em;color:#124f43;font-weight:650}.problem{padding:14px;border:1px solid #d4e0dc;border-radius:12px;margin:12px 0}.problem p{margin-bottom:6px}textarea{width:100%;min-height:80px;padding:10px;border:1px solid #829f96;border-radius:9px;margin:4px 0 14px}label{display:block;margin-top:6px}details{margin:12px 0}summary{cursor:pointer;font-weight:700}.status{color:#526d65}.screen-reader{position:absolute;left:-10000px} @media(max-width:760px){.layout{grid-template-columns:1fr}nav button{width:auto;display:inline-block;margin-right:4px}.model{height:260px}.floor{scale:.75}header div,main{padding-inline:12px}}@media print{header,nav,.hero,.tabs,.panel:not(#sheet),button{display:none!important}.layout{display:block}textarea{min-height:100px}}
+
+.board{width:min(345px,78vw);height:266px;padding:8px 8px 26px;background:#91a99e}.boardCells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,1fr);gap:6px;height:100%;transform-style:preserve-3d}.board .gate{bottom:0;left:50%;right:auto;transform:translateX(-50%);background:#173e36;color:#fff;padding:0 16px;border-radius:5px}.cell{position:relative;width:100%;min-width:0;padding:3px;font-size:clamp(.82rem,2.5vw,1rem);background:var(--card,#e3ece6);border:2px dashed #54736a;border-radius:7px;transform-style:preserve-3d}.cell.occupied{transform:translateZ(9px);border-style:solid;box-shadow:0 5px #365c50}.cell[aria-pressed=true],#zoneKeys [aria-pressed=true]{outline:3px solid #9b5500;outline-offset:2px;background:#ffedc5;color:#192e29}.cell.reachable{border:3px solid #19734d}.cell.unreachable{border:3px solid #a54b25}.cell.blocked{background:#ffd0ae;color:#713712}.card-count{font-weight:400}.model{touch-action:auto}
+.knowledgeTable{overflow:auto}.knowledgeTable table{border-collapse:collapse;width:100%;margin:8px 0 16px}.knowledgeTable :is(th,td){text-align:left;padding:6px 9px;border:1px solid #bfd2ca}.knowledgeTable th{background:#e3f1ec}#knowledge details{padding:9px 12px;border:1px solid #d4e0dc;border-radius:9px}#knowledge summary{margin-bottom:4px}
+
+:root{--brick:#843722;--brick-dark:#5b2619;--orange:#dc6729;--ink:#3b241a;--line:#e8c9b6}body{background:#fff4ea;color:var(--ink)}header{background:var(--brick-dark)}header span{color:#ffdec7}nav,.panel{border-color:var(--line)}button{color:#6b321e;border-color:#dcb298;background:#fffaf6}button:hover{background:#ffe5cf}button[aria-pressed=true],.primary{background:var(--brick);border-color:var(--brick);color:white}button:disabled{opacity:.53;cursor:default}.hero{background:linear-gradient(120deg,#692a1d,#ae4324 74%,#ca622e);border-bottom:5px solid #f19b56}.hero p{color:#ffe6d2}.hero-link{display:inline-block;color:white;margin-top:12px;text-underline-offset:4px}.tag{background:#ffddb9;color:#73300e}.status{color:#80553e}.feedback{color:#733421}.problem{border-color:var(--line)}textarea{border-color:#ba8e76}.model{background:radial-gradient(ellipse,#fff8f0,#f4d8c0)}.board{background:#c18868;border-color:#a36a4f;box-shadow:0 0 0 3px #8b4e34}.board .wall{background:#a36042}.board .gate{background:#703420}.cell{background:var(--card,#fae8da);border-color:#995e42}.cell.occupied{box-shadow:0 5px #8b573e}.knowledgeTable :is(th,td),#knowledge details{border-color:var(--line)}.knowledgeTable th{background:#fff0df}.slide-frame{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);overflow:hidden;background:#fff3e6;border-radius:13px;border:1px solid var(--line);min-height:255px}.slide-copy{padding:clamp(16px,3vw,30px)}.slide-copy h3{font-size:clamp(1.4rem,2.6vw,2.15rem);line-height:1.3;margin-bottom:.65rem;color:var(--brick-dark)}#slideNumber{font-weight:700;color:#884223;margin-bottom:8px}#slideTask{border-inline-start:4px solid var(--orange);padding-inline-start:12px;margin:0}.slide-frame img{width:100%;height:100%;min-height:255px;max-height:400px;object-fit:cover;display:block}.ppt-download{display:inline-flex;align-items:center;border:1px solid #dcb298;border-radius:10px;padding:.55rem .85rem;color:#783721;font-weight:700}.deck-controls{align-items:center}.deck-panel:fullscreen{background:#fff2e7;overflow:auto;padding:clamp(16px,5vw,60px)}.deck-panel:fullscreen .slide-frame img{max-height:65vh}.deck-panel:fullscreen .slide-copy{font-size:clamp(1rem,2vw,2rem)}.deck-panel:fullscreen .slide-copy h3{font-size:clamp(1.6rem,4vw,4rem)}@media(max-width:560px){.slide-frame{grid-template-columns:1fr}.slide-frame img{min-height:0;height:180px;object-position:50% 48%}}
+#slideArt{object-position:50% 40%}
+/* 試教演練 */
+.trial{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}.lottery{min-width:170px;min-height:110px;font-size:1.15rem;border-width:2px;border-style:dashed;display:grid;place-items:center;text-align:center;line-height:1.35}.lottery.spinning{animation:shake .12s linear infinite}@keyframes shake{50%{transform:rotate(-2deg)}}.trial-clock{font:800 clamp(2.2rem,6vw,3.6rem)/1 ui-monospace,'SFMono-Regular',Menlo,monospace;color:var(--brick-dark);letter-spacing:.02em}.trial-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:10px 0 6px;border:1px solid var(--line);background:#fff}.trial-bar span{flex:var(--w);border-inline-end:2px solid #fff;background:#f4d8c0;position:relative}.trial-bar span.done{background:#c98a62}.trial-bar span.now{background:linear-gradient(90deg,var(--orange) var(--p,0%),#f4d8c0 var(--p,0%))}.trial-cue{margin:4px 0 0;font-weight:700;color:#733421}.trial.alert .trial-clock{color:#b3261e}@media(prefers-reduced-motion:reduce){.lottery.spinning{animation:none}}@media(max-width:560px){.trial{grid-template-columns:1fr}}
+/* 講義對照 */
+.ref{border-inline-start:5px solid var(--orange)}.ref summary{font-size:1.05rem}.ref ul{margin:.4rem 0 .8rem;padding-inline-start:1.3rem}.ref li{margin:.2rem 0}.ref .src{font-size:.88rem;color:#80553e}
+/* 自我檢測 */
+.quiz-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}.quiz-q{padding:14px;border:1px solid var(--line);border-radius:12px;margin:12px 0;background:#fffaf6}.quiz-q .cat{font-size:.8rem;font-weight:700;color:#73300e;background:#ffddb9;border-radius:5px;padding:1px 7px;margin-inline-end:6px}.quiz-q .choices button{text-align:left}.quiz-q button.right{background:#1f6b45;border-color:#1f6b45;color:#fff}.quiz-q button.wrong{background:#fde3dc;border-color:#b3261e;color:#7a1b14}.quiz-q .why{margin:.5rem 0 0;color:#4b2d1f}.quiz-score{font-weight:800;color:var(--brick-dark)}
+@media print{#trial,#knowledge,#refPanel{display:none!important}}
+</style>
+<header><div><strong>避難收容行動課</strong><span>國小中高年級 · 6／20／40 分鐘</span></div></header>
+<main class="layout"><nav aria-label="課程"><h2>五堂行動課</h2><div id="lessons"></div><p id="progress" class="status"></p></nav><div>
+<section class="hero"><h1 id="title"></h1><p id="intro"></p><a class="hero-link" href="#decks">查看本課簡報</a></section>
+<section class="panel"><h2>選擇教學時間</h2><div id="modes" class="choices" aria-label="教學版本"></div><p id="modeSummary" class="status"></p></section>
+<section class="panel" id="trial" aria-labelledby="trialTitle"><h2 id="trialTitle">試教演練｜抽籤＋6 分鐘</h2>
+<p class="status">模擬複訓分組試教：從五個授課重點抽一題，切換到 6 分鐘快教版，總計時會依「安全宣導 1 → 公約 1 → 實作 2 → 回饋 1 → 離堂 1」自動換段。</p>
+<div class="trial" id="trialBox"><button class="lottery" id="draw" type="button">抽一題</button>
+<div><div class="trial-clock" id="trialClock" role="timer" aria-live="off">6:00</div><div class="trial-bar" id="trialBar" aria-hidden="true"></div><p class="trial-cue" id="trialCue" aria-live="polite">準備好後按「開始 6 分鐘」。</p>
+<div class="controls"><button class="primary" id="trialStart" type="button">開始 6 分鐘</button><button id="trialReset" type="button">重來</button><label class="status" style="margin:0;align-self:center"><input type="checkbox" id="trialBeep" checked> 換段提示音</label></div></div></div></section>
+<section class="panel deck-panel" id="decks" aria-labelledby="deckTitle">
+<h2 id="deckTitle">教學簡報</h2>
+<p class="status" id="deckName"></p>
+<div class="slide-frame" id="slideFrame">
+<div class="slide-copy"><p id="slideNumber"></p><h3 id="slideTitle"></h3><p id="slideText"></p><p id="slideTask"></p></div>
+<img id="slideArt" alt="" width="512" height="1024">
+</div>
+<div class="controls deck-controls"><button id="prevSlide">上一頁</button><button id="nextSlide">下一頁</button><button id="presentSlide">全螢幕投影</button><a class="ppt-download" id="downloadDeck" download>下載本課 PowerPoint</a></div>
+</section>
+<section class="panel ref" id="refPanel"><details id="refDetails"><summary id="refTitle">本課講義對照（教師用）</summary><p class="src" id="refSource"></p><div id="refBody"></div></details></section>
+<div class="tabs" id="tabs" aria-label="課程階段"></div>
+<section class="panel" id="stage"></section>
+<section class="panel" id="lab" aria-labelledby="labTitle">
+<h2 id="labTitle">3×3 收容所配置盤</h2>
+<p>先選一張區域牌，再選格子。已放置的牌可以換位或拖曳。入口在下方中央，請留出通道，讓居民能到報到區、休息區與廁所。</p>
+<div class="model"><div class="floor board" id="floor" aria-label="九宮格配置盤"><div class="wall"></div><div id="boardCells" class="boardCells"></div><div class="gate">入口</div></div></div>
+<div class="controls"><button data-turn="-30">向左旋轉</button><button data-turn="30">向右旋轉</button><button id="top">俯視</button><button id="resetView">恢復視角</button></div>
+<h3>區域牌組 <span id="placedCount" class="status"></span></h3>
+<div id="zoneKeys" class="choices" aria-label="區域牌組"></div>
+<p class="feedback" id="modelInfo" role="status" aria-live="polite"></p>
+<div id="routeTask"><h3>動線檢查</h3><p>空格與通道牌都可以通行。從入口開始，沿上下左右相鄰格移動。請比較兩種配置，說明哪一種更容易到達服務區。</p>
+<div class="controls"><button id="testRoute" class="primary">檢查動線</button><button id="block">在通道放入障礙</button><button id="clear" disabled>通知成人移開障礙</button><button id="returnCard" disabled>選取的牌收回牌組</button><button id="clearBoard">清空配置</button></div>
+<p id="routeFeedback" class="feedback" role="status" aria-live="polite"></p></div></section>
+<section class="panel" id="sheet"><h2>互動學習單</h2><p id="worksheetIntro">可用關鍵字或請同伴代記。請使用虛構資料。</p><div id="fields"></div><div class="controls"><button class="primary" id="save">儲存本堂學習單</button><button onclick="window.print()">列印本堂學習單</button></div><p id="saveInfo" class="feedback" aria-live="polite"></p></section>
+<section class="panel" id="knowledge" aria-labelledby="knowledgeTitle"><h2 id="knowledgeTitle">教師知識庫｜防災士備課</h2><p>依提供的筆記整理，供教師在課前選讀或課後延伸。出題型態與優先順序屬筆記作者的推測。講義中的數值供情境估算與複習，實際開設、撤離與配置依權責機關及現場公告。</p><div id="knowledgeItems"></div>
+<details id="quizBox" style="margin-top:18px"><summary><span id="quizTitle">防災士筆試自我檢測（37 題）</span></summary>
+<p class="status">題目依講義整理，選擇題形式。按選項立即看解析；可依範圍篩選、重新洗牌。作答紀錄只留在這個分頁。</p>
+<div class="quiz-head"><span>範圍：</span><span id="quizFilters" class="choices" style="margin:0"></span><button id="quizShuffle" type="button">重新洗牌</button><span class="quiz-score" id="quizScore" aria-live="polite"></span></div>
+<div id="quizItems"></div></details></section></div></main>
+<script src="slides/decks.js"></script>
+<script>
+const lessons=[
+{title:'目的與功能',intro:'豪雨後，一家人抵達收容場所。你能幫他們找到正確的服務嗎？',safe:'指出教室出口，練習教師的停止訊號。真實災害中依學校或官方引導前往已指定的安全地點。',rules:['一人說完再補充','遇到不確定的事先問成人','可用圖卡、口語或手勢回應'],practice:'5 分鐘認識服務區，10 分鐘輪流配對，5 分鐘挑戰「場所還沒開設」的變化情境。',review:'交換一個最有爭議的答案。請另一組先說居民的需求，再說哪個區域能提供協助。',fields:['選一個角色，寫出他的需求、你選的服務與理由。','同伴補充了什麼？你會怎樣修改做法？','離堂題｜有人說活動中心一定已開設。你會先向誰確認什麼？'],questions:[
+['第一次抵達，還不知道怎麼安排。',['物資區','報到區','安靜區'],1,'先到報到區確認流程與服務位置。'],
+['家人走散，應該先做什麼？',['自行外出找人','向工作人員求助','在公開群組貼全名'],1,'向工作人員求助，並依指引留在指定區域。'],
+['到了才發現場所還沒開設。',['跟著其他人自行進入','問帶隊成人確認官方資訊','自己去其他地方'],1,'向帶隊成人確認開設狀態及接下來的安排。']]},
+{title:'整備與配置',intro:'把空間安排得讓第一次來的人也能找得到路。',safe:'指出真實出入口。保持通道暢通，依教師指令用慣用方式停等與移動。',rules:['輪流操作模型','提出改動時說理由','走道保持暢通'],practice:'5 分鐘讀牌分工，10 分鐘用 3×3 配置盤排出兩種方案並檢查動線，5 分鐘加入障礙、重新檢查並比較。',review:'另一組試著沿你的路線走一遍，指出一處可能走錯或卡住的地方。',fields:['從入口到報到、休息區或廁所，你的路線依序經過哪些地方？','同伴在哪裡可能走錯？你打算把標示放在哪？','離堂題｜物資箱堵住走道。你會先做什麼？怎麼確認可以通行？'],questions:[
+['哪個安排方便剛到的居民？',['報到標示靠近入口','物資堆在出入口','休息區擋在走道'],0,'入口附近的清楚報到標示能協助居民找到第一站。'],
+['想確認移動路線是否可用。',['看圖就一定沒問題','實際沿可及路線檢查標示、障礙與轉彎空間','比誰走得最快'],1,'實地檢查能發現圖上看不到的轉彎與通行障礙。']]},
+{title:'組織與分工',intro:'事情同時發生，你會把需求交給誰？',safe:'受傷、走散或危險事件立即向指定成人回報。演練使用虛構情境。',rules:['一次一人回報','接收者重述確認','緊急狀況交給成人'],practice:'5 分鐘分配引導、物資、回報與接收角色，10 分鐘輪流處理事件，5 分鐘加入「原窗口離開」並找備援。',review:'另一組聽一次回報，檢查有沒有「位置、事件、需求」，並重述確認。',fields:['我在＿＿。我看到＿＿。我需要＿＿。','接收者重述了什麼？還缺哪項資訊？','離堂題｜原窗口不在，有人在休息區跌倒。你會找誰、怎麼說？'],questions:[
+['飲水快用完，誰先接到消息？',['物資服務人員','休息的居民','公開社群'],0,'把飲水不足回報給負責物資的工作人員。'],
+['有人跌倒說腳很痛。',['扶起來走走','通知指定成人，說明位置與狀況','等到課程結束'],1,'由成人判斷與處置，學生負責清楚回報。'],
+['哪句回報資訊最完整？',['有人需要幫忙','請快來','休息區有人跌倒、腳痛，需要成人協助'],2,'完整回報交代位置、發生的事件與需要的協助。']]},
+{title:'生活管理',intro:'排隊、休息與聊天都有需要。一起訂出具體做法。',safe:'保持出口暢通，發生爭執時請工作人員協助。用虛構資料練習。',rules:['先重述對方的需求','提出具體又能做到的做法','尊重個人隱私'],practice:'5 分鐘選情境，10 分鐘討論並寫圖文告示，5 分鐘加入「有人沒聽到廣播」並改寫通知方式。',review:'另一組只看告示，示範看懂了什麼。原組修正容易誤解的指令。',fields:['有人想休息、有人想聊天。兩方各需要什麼？','寫一句看得懂、做得到的告示，並說放在哪裡。','離堂題｜只用廣播有哪些人可能收不到？你會加什麼？'],questions:[
+['排隊隊伍擋住出口。',['請沿標線排隊，留出通道','請大家趕快擠過去','關起出口'],0,'給清楚的排隊位置，才能兼顧秩序與通行。'],
+['休息區旁有人聊天。',['指責所有人','建議在活動區聊天、休息區放低音量','取消休息區'],1,'分區讓聊天和休息的需求都能被照顧。'],
+['有人沒聽到廣播。',['只提高音量','加上醒目的文字與圖示','請他自行猜測'],1,'同步提供圖文，可增加訊息的可及性。']]},
+{title:'特殊需求者之收容與照顧',intro:'先問本人想要什麼協助，再一起排除障礙。',safe:'碰觸他人或操作其輔具前先取得同意。需要移位、照護或用藥協助時通知成人。',rules:['先問並等候回覆','尊重對方選擇','用虛構角色練習'],practice:'5 分鐘讀需求情境，10 分鐘用 3×3 配置盤檢查路線與服務位置，5 分鐘輪流練習詢問、等待、提供選項及轉介。',review:'請同伴說明你改善了哪種障礙、還需要本人或成人確認什麼。',fields:['寫出你會先問本人的一句話。','在模型中找到哪個障礙？你能提供什麼選項？','離堂題｜居民希望私下說明用藥需求。你會怎麼回應並找誰接手？'],questions:[
+['居民說輪椅過不去。',['立刻推他的輪椅','先詢問想要的協助，再回報走道障礙','請他改用走路'],1,'先聽本人需求，再請工作人員協助確認可通行路線。'],
+['居民用圖卡表示想去安靜的地方。',['指認安靜區、確認路線與對方意願','替他決定並直接拉走','要求他完整口述'],0,'回應他的溝通方式，給他選擇並等候確認。'],
+['居民想私下談用藥。',['請他對大家說','請指定成人協助找可私下談的位置','學生幫忙分藥'],1,'保護隱私，由成人處理照護與用藥需求。']]}
+];
+const steps=[['安全宣導',5],['建立公約',5],['情境實作',20],['同儕回饋',5],['個人離堂單',5]];
+const zones=[
+['報到區','#9ad5c0','居民抵達後可報到、詢問方向。'],
+['物資區','#f2c67b','依指引領取飲水及物資。'],
+['休息區','#abc9ec','保留進出空間，提供座位。'],
+['安靜區','#d7bfeb','依居民意願提供較安靜的環境。'],
+['廁所','#b8d9df','注意可及路線與標示。'],
+['關懷服務區','#ffd1bd','需要照護或私下談話時，請工作人員協助。'],
+['通道甲','#ebf0df','用來保留通行空間。'],
+['通道乙','#ebf0df','用來保留通行空間。'],
+['通道丙','#ebf0df','用來保留通行空間。']
+];
+const $=id=>document.getElementById(id);
+let record={};
+try{record=JSON.parse(localStorage.getItem('shelter-class-v1'))||{}}catch{}
+let mode=20;
+let active=0,phase=0,angle=-19,tilt=42,deadline=0,remaining=120;
+const button=(label,fn,pressed)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;if(pressed!==undefined)b.setAttribute('aria-pressed',pressed);return b};
+function persist(){try{localStorage.setItem('shelter-class-v1',JSON.stringify(record));return true}catch{return false}}
+function worksheet(i){const data=record[i]??={};return mode===40?data:((data.worksheets??={})[mode]??={})}
+function updateProgress(){$('progress').textContent=mode+' 分鐘版已完成 '+lessons.filter((_,i)=>worksheet(i).done).length+'／5 份學習單'}
+const timings={20:[2,2,10,3,3],6:[1,1,2,1,1],40:[5,5,20,5,5]};
+const tracks=[
+ {full:'2 分鐘讀卡：收容、簡易醫療或轉介、物資三項功能。4 分鐘把三位居民配對到服務。4 分鐘抽「活動中心尚未開設」，用危險區域、安全路徑、場所可達且可用三問說明下一步。',quick:'投影配置盤，學生輪流指報到區和物資區。問「家人走散」一題，請學生指出可求助的工作人員。',check:'能配對至少兩項需求，並指出誰能確認場所是否開設。',exit:'還沒確認收容所是否開放，你要先向誰確認？'},
+ {full:'2 分鐘分工與讀牌。4 分鐘排出方案 A：保留入口通道，配置報到、休息、廁所。2 分鐘加入物資箱，按「檢查動線」。2 分鐘排出方案 B，找出一項改善。高年級可用下方容量算例。',quick:'請一位學生選報到牌、一位選休息牌，輪流放置。全班用手指指出入口前應保留哪一格，再檢查動線。',check:'入口格留空或放通道，能指出一條可達路線。完整版另記錄障礙前後的差異。',exit:'入口前一格放什麼，居民才容易走進來？'},
+ {full:'2 分鐘認識站長與六組分工。4 分鐘兩人一組輪流回報「位置、事件、需求」。4 分鐘加入飲水不足與傷者同時出現的情境，找合適窗口並請接收者重述。',quick:'教師讀出「休息區有人跌倒」。一位學生用三句話回報，另一位扮演工作人員重述。',check:'學生交代位置、事件與需求，受傷情況交由指定成人。',exit:'有人在休息區跌倒，你要找誰？先說哪三項資訊？'},
+ {full:'2 分鐘選題：隊伍擋路、休息被打擾或有人沒聽見廣播。4 分鐘寫一張可執行的圖文公約。4 分鐘交換告示並演示物資五步，找出哪一步能發現飲水不足。',quick:'教師投影「隊伍擋住出口」。學生用口語或指圖選一個改動，合寫一句能直接貼在現場的告示。',check:'能提出具體可執行的措施，兼顧兩種需求。',exit:'排隊隊伍擋住出口，你會寫哪一句提醒？'},
+ {full:'2 分鐘讀需求卡：輪椅通行、看文字公告、安靜休息或私下說明照護需求。4 分鐘在配置盤定位障礙並移一張牌。4 分鐘兩人演練「先問、等回覆、提供選項、必要時轉介成人」。',quick:'教師讀出「我沒聽到廣播，可以看文字嗎？」學生先練習詢問本人，接著指出可放置圖文告示的位置。',check:'有先詢問本人，能提出一項對應需求的調整，知道何時請成人接手。',exit:'同伴希望看文字公告，你會怎麼回應？'}
+];
+function selectLesson(i){active=i;resetPhase(0);render()}
+function resetPhase(i){phase=i;remaining=timings[mode][i]*60;deadline=0}
+function addText(parent,tag,content){
+ const element=document.createElement(tag);element.textContent=content;parent.append(element);return element;
+}
+function render(){
+ const l=lessons[active];$('title').textContent=l.title;$('intro').textContent=l.intro;
+ renderDeck(deckLesson!==active);
+ $('lessons').replaceChildren(...lessons.map((x,i)=>button((i+1)+'　'+x.title,()=>selectLesson(i),i===active)));
+ $('modes').replaceChildren(...[[20,'20 分鐘完整版'],[6,'6 分鐘快教版'],[40,'40 分鐘原課程']].map(([value,label])=>button(label,()=>{
+  mode=value;resetPhase(0);render();$('modes').querySelector('[aria-pressed="true"]').focus();
+ },value===mode)));
+ $('modeSummary').textContent=mode===6?'一個示範、一題口頭驗收。配置盤可由教師投影，學生用口語、手勢或指圖回應。':mode===20?'先示範再分組實作。每組輪流讀卡、操作、記錄及回報。':'保留原有五段安排，供完整班級課程使用。';
+ $('tabs').replaceChildren(...steps.map(([name],i)=>button(name+' · '+timings[mode][i]+' 分',()=>{resetPhase(i);renderStage()},i===phase)));
+ $('fields').replaceChildren(...l.fields.map((label,i)=>{const el=document.createElement('label');el.textContent=i===2&&mode!==40?'離堂題｜'+tracks[active].exit:label;const input=document.createElement('textarea');const data=worksheet(active);input.value=data.fields?.[i]||'';input.oninput=()=>{(data.fields??=[])[i]=input.value;data.done=false;persist();updateProgress();$('saveInfo').textContent=''};el.append(input);el.hidden=mode===6&&i!==2;return el}));
+ $('saveInfo').textContent='';updateProgress();renderStage();renderRef();
+}
+function renderStage(){
+ const l=lessons[active], [name]=steps[phase], time=timings[mode][phase], track=tracks[active];const stage=$('stage');
+ [...$('tabs').children].forEach((b,i)=>b.setAttribute('aria-pressed',i===phase));
+ stage.innerHTML='<span class="tag">'+time+' 分鐘</span><h2>'+name+'</h2><div id="activity"></div><div class="controls"><button id="timerButton"></button><button id="timerReset">重設計時</button><span id="clock"></span></div>';
+ const body=$('activity');
+ if(phase===0)body.textContent=mode===6?'教室出口保持暢通。看見停止手勢就停下，有危險找指定成人。請一位學生指認成人窗口。':l.safe+' 請一位學生示範如何暫停或求助。';
+ if(phase===1){
+ body.textContent=mode===6?'師生共選一項公約，學生用口語、點頭或指卡確認。':'小組共選至少兩項公約，每人用自己的方式表達同意，也可以補充一條。';
+ const data=record[active]??={};
+ l.rules.forEach((rule,i)=>{const label=document.createElement('label'),box=document.createElement('input');box.type='checkbox';box.checked=!!data.rules?.[i];box.onchange=()=>{(data.rules??=[])[i]=box.checked;persist()};label.append(box,' '+rule);body.append(label)});
+ const label=document.createElement('label');label.textContent='我們補充的公約';const custom=document.createElement('textarea');custom.value=data.rule||'';custom.oninput=()=>{data.rule=custom.value;persist()};label.append(custom);body.append(label);
+ }
+ if(phase===2){
+ addText(body,'p',mode===40?l.practice:mode===20?track.full:track.quick);
+ if(active===1||active===4)body.append(button('前往 3×3 配置盤',()=> $('boardCells').querySelector('button').focus()));
+ if(active===1&&mode!==6){
+  const extra=document.createElement('details');
+  addText(extra,'summary','容量挑戰｜先扣除通道才計算');
+  addText(extra,'p','練習情境：場地共 120 m²，其中入口、通道、服務與衛浴合計 40 m²。以講義每人 4 m² 估算，可安置多少人？');
+  const answer=addText(extra,'p','80 ÷ 4＝20 人。再以講義飲用水每人每日 3 L 估算，20 人一天需 60 L。');answer.hidden=true;
+  extra.append(button('查看算式',()=>{answer.hidden=!answer.hidden}));body.append(extra);
+ }
+ const quickQuestion=[1,0,1,0,1][active];
+ const questions=mode===6?[l.questions[quickQuestion]]:l.questions;
+ questions.forEach(([question,answers,correct,reason],i)=>{
+ const card=document.createElement('div');card.className='problem';const prompt=document.createElement('p');prompt.textContent=question;const choices=document.createElement('div');choices.className='choices';
+ const fb=document.createElement('div');fb.className='feedback';fb.setAttribute('aria-live','polite');
+ const data=record[active]??={};const answerIndex=mode===6?quickQuestion:i;const select=(answer)=>{[...choices.children].forEach((b,j)=>b.setAttribute('aria-pressed',j===answer));fb.textContent=answer===correct?'做對了。'+reason:'再試一次。想想哪個選擇能讓居民安全取得協助。'};
+ answers.forEach((label,j)=>choices.append(button(label,()=>{(data.answers??=[])[answerIndex]=j;persist();select(j)},false)));
+ if(Number.isInteger(data.answers?.[answerIndex]))select(data.answers[answerIndex]);card.append(prompt,choices,fb);body.append(card);
+ });
+ }
+ if(phase===3)body.textContent=(mode===6?'請一組口頭或指圖回報，教師以這一點驗收。':l.review+' 把同伴提出的一項觀察寫到學習單。')+' '+track.check;
+ if(phase===4){body.textContent=mode===40?'請每人獨立完成本堂學習單的離堂題。':'離堂題｜'+track.exit;body.append(button('前往學習單',()=>{$('fields').lastElementChild.querySelector('textarea').focus()}))}
+ $('timerButton').onclick=()=>{if(deadline){remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));deadline=0}else if(remaining)deadline=Date.now()+remaining*1000;tick()};
+ $('timerReset').onclick=()=>{remaining=time*60;deadline=0;tick()};tick();
+}
+function tick(){if(!$('clock'))return;if(deadline){remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));if(!remaining)deadline=0}
+ $('clock').textContent=remaining?Math.floor(remaining/60)+':'+String(remaining%60).padStart(2,'0'):'時間到';$('timerButton').textContent=deadline?'暫停':'開始計時';$('timerButton').disabled=!remaining}
+setInterval(tick,250);
+function view(){$('floor').style.setProperty('--angle',angle+'deg');$('floor').style.setProperty('--tilt',tilt+'deg')}
+document.querySelectorAll('[data-turn]').forEach(b=>b.onclick=()=>{angle+=Number(b.dataset.turn);view()});
+$('top').onclick=()=>{angle=0;tilt=0;view()};$('resetView').onclick=()=>{angle=-19;tilt=42;view()};
+const boardKey='shelter-board-v1';
+let board=Array(9).fill(null);
+try{
+ const saved=JSON.parse(localStorage.getItem(boardKey));
+ if(Array.isArray(saved)&&saved.length===9&&saved.every(x=>x===null||Number.isInteger(x)&&zones[x])&&
+    new Set(saved.filter(x=>x!==null)).size===saved.filter(x=>x!==null).length)board=saved;
+}catch{}
+let selected=null,dragCard=null,obstacle=null,route=null;
+const isWalkable=id=>id===null||id>=6;
+function neighbors(index){
+ return [index>=3?index-3:-1,index<6?index+3:-1,index%3?index-1:-1,index%3<2?index+1:-1].filter(x=>x>=0);
+}
+function inspectLayout(layout,blocked){
+ const visited=new Set();
+ const arrival=new Set();
+ const queue=isWalkable(layout[7])?[7]:[];
+ while(queue.length){
+  const index=queue.shift();
+  if(index===blocked||visited.has(index))continue;
+  visited.add(index);
+  if(isWalkable(layout[index]))queue.push(...neighbors(index));
+  else arrival.add(index);
+ }
+ return {walked:new Set([...visited].filter(i=>isWalkable(layout[i]))),arrival};
+}
+function placeCard(id,index){
+ const old=board.indexOf(id);
+ if(old===index){selected=null;renderBoard(index);return}
+ const displaced=board[index];
+ if(old>=0)board[old]=displaced;
+ board[index]=id;
+ selected=null;
+ commitBoard(zones[id][0]+'已放到'+cellName(index)+(displaced===null?'':old>=0?'，兩張牌已交換位置。':'，原牌已回到牌組。'),index);
+}
+function commitBoard(message,focus){
+ try{localStorage.setItem(boardKey,JSON.stringify(board))}catch{}
+ route=null;
+ obstacle=null;
+ $('routeFeedback').textContent='';
+ renderBoard(focus);
+ $('modelInfo').textContent=message;
+}
+const cellName=index=>'第 '+(Math.floor(index/3)+1)+' 列第 '+(index%3+1)+' 格';
+function renderBoard(focus){
+ const cells=board.map((id,index)=>{
+  const label=id===null?'空格':zones[id][0];
+  const b=button(index===obstacle?'物資箱':label,()=>{
+   if(selected!==null){placeCard(selected,index);return}
+   if(id!==null){
+    selected=id;
+    renderBoard(index);
+    $('modelInfo').textContent=zones[id][0]+'｜'+zones[id][2]+' 選另一格移動，或將牌收回牌組。';
+   }
+  },id!==null&&selected===id);
+  b.className='cell';
+  b.setAttribute('aria-label',cellName(index)+'，'+(index===obstacle?'被物資箱堵住':label));
+  if(id!==null){
+   b.classList.add('occupied');b.style.setProperty('--card',zones[id][1]);
+   b.draggable=true;
+   b.ondragstart=e=>{dragCard=id;e.dataTransfer.setData('text/plain',String(id));e.dataTransfer.effectAllowed='move'};
+   b.ondragend=()=>{dragCard=null};
+  }
+  if(index===obstacle)b.classList.add('blocked');
+  if(route?.walked.has(index)||route?.arrival.has(index))b.classList.add('reachable');
+  else if(route&&id!==null&&!isWalkable(id))b.classList.add('unreachable');
+  b.ondragover=e=>{if(dragCard!==null)e.preventDefault()};
+  b.ondrop=e=>{if(dragCard!==null){e.preventDefault();placeCard(dragCard,index);dragCard=null}};
+  return b;
+ });
+ $('boardCells').replaceChildren(...cells);
+ const deck=[];
+ zones.forEach(([label,color,info],id)=>{
+  if(board.includes(id))return;
+  const b=button(label,()=>{
+   selected=selected===id?null:id;
+   renderBoard();
+   $('zoneKeys').querySelector('[data-card="'+id+'"]')?.focus();
+   $('modelInfo').textContent=selected===null?'已取消選取。':label+'｜'+info+' 請選一個格子放置。';
+  },selected===id);
+  b.dataset.card=id;b.style.borderColor=color;b.draggable=true;
+  b.ondragstart=e=>{dragCard=id;e.dataTransfer.setData('text/plain',String(id));e.dataTransfer.effectAllowed='move'};
+  b.ondragend=()=>{dragCard=null};
+  deck.push(b);
+ });
+ $('zoneKeys').replaceChildren(...deck);
+ $('placedCount').textContent='已放置 '+board.filter(x=>x!==null).length+'／9 張';
+ $('returnCard').disabled=selected===null||!board.includes(selected);
+ $('clear').disabled=obstacle===null;
+ if(focus!==undefined)cells[focus].focus();
+}
+$('returnCard').onclick=()=>{
+ const index=board.indexOf(selected);
+ if(index<0)return;
+ const id=selected;board[index]=null;selected=null;
+ commitBoard(zones[id][0]+'已收回牌組。');
+ $('zoneKeys').querySelector('[data-card="'+id+'"]')?.focus();
+};
+$('clearBoard').onclick=()=>{
+ if(board.every(x=>x===null)&&obstacle===null)return;
+ if(!window.confirm('要把配置盤上的牌全部收回牌組嗎？'))return;
+ board.fill(null);selected=null;commitBoard('已清空配置盤。');
+};
+$('block').onclick=()=>{
+ const checked=inspectLayout(board,null);
+ const candidates=[...checked.walked];
+ obstacle=candidates.find(i=>i!==7)??candidates[0]??null;
+ route=null;renderBoard();
+ $('routeFeedback').textContent=obstacle===null?'請先留一個從入口可到達的通道格。':'物資箱擋住'+cellName(obstacle)+'。請停下、回報，再檢查動線。';
+};
+$('clear').onclick=()=>{obstacle=null;route=null;renderBoard();$('routeFeedback').textContent='成人已移開障礙，請再次檢查動線。';$('testRoute').focus()};
+$('testRoute').onclick=()=>{
+ route=inspectLayout(board,obstacle);renderBoard();
+ const missing=[0,2,4].filter(id=>!board.includes(id)).map(id=>zones[id][0]);
+ const unreachable=board.flatMap((id,i)=>id!==null&&!isWalkable(id)&&!route.arrival.has(i)?[zones[id][0]]:[]);
+ const warning=!isWalkable(board[7])?'入口正前方請保留空格或通道。':obstacle===7?'入口被障礙物堵住。':'';
+ $('routeFeedback').textContent=[warning,missing.length?'請放入'+missing.join('、')+'。':'',unreachable.length?'目前到不了'+unreachable.join('、')+'。':''].filter(Boolean).join(' ')||
+  '已連通報到區、休息區與廁所，其他已放置區域也可到達。請說明你的路線。';
+};
+renderBoard();
+$('save').onclick=()=>{const data=worksheet(active);const required=mode===6?[2]:[0,1,2];if(!required.every(i=>data.fields?.[i]?.trim())){$('saveInfo').textContent=mode===6?'請先完成離堂題，再儲存。':'請先完成三題，再儲存。';return}data.done=true;const stored=persist();updateProgress();$('saveInfo').textContent=stored?'已儲存在這個瀏覽器。':'瀏覽器無法儲存，請在關閉前列印。'};
+
+let slideIndex=0,deckLesson=-1;
+function renderDeck(reset=false){
+ if(reset)slideIndex=0;
+ deckLesson=active;
+ const deck=teachingDecks[active], slide=deck.slides[slideIndex];
+ $('deckName').textContent='第 '+(active+1)+' 課｜'+deck.title;
+ $('slideNumber').textContent=(slideIndex+1)+' / '+deck.slides.length;
+ $('slideTitle').textContent=slide[0];$('slideText').textContent=slide[1];$('slideTask').textContent=slide[2];
+ const art=$('slideArt');art.src='slides/scene-'+(deck.image+1)+'.jpg';art.alt=deck.alt;
+ $('prevSlide').disabled=slideIndex===0;$('nextSlide').disabled=slideIndex===deck.slides.length-1;
+ $('downloadDeck').href='slides/lesson-'+(active+1)+'.pptx';
+ $('downloadDeck').download=deck.title+'.pptx';
+}
+function moveSlide(delta){slideIndex=Math.max(0,Math.min(teachingDecks[active].slides.length-1,slideIndex+delta));renderDeck()}
+$('prevSlide').onclick=()=>moveSlide(-1);
+$('nextSlide').onclick=()=>moveSlide(1);
+$('presentSlide').hidden=!$('decks').requestFullscreen;
+$('presentSlide').onclick=async()=>{
+ try{if(document.fullscreenElement)await document.exitFullscreen();else await $('decks').requestFullscreen()}
+ catch{$('presentSlide').textContent='可使用瀏覽器的全螢幕功能'}
+};
+document.addEventListener('fullscreenchange',()=>{$('presentSlide').textContent=document.fullscreenElement?'離開全螢幕':'全螢幕投影'});
+$('decks').addEventListener('keydown',e=>{
+ if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();moveSlide(e.key==='ArrowRight'?1:-1)}
+});
+const knowledgeBlocks=[["核心素養 A｜在風雨之前彼此預備（總會立場文）", "數字題\n| 範圍 | 教會數 | 教會本身在土石流潛勢區 | 教會本身在大規模崩塌區 | 多位會友住土石流潛勢區 | 多位會友住大規模崩塌區 |\n|---|---|---|---|---|---|\n| 原住民中會 | 532 | 37 | 14 | 213 | 40 |\n| 平地中會 | 476 | — | — | 31 | 4 |\n\n培力路徑的順序\n總會取得防災士培訓機構認證 → 培養各中會的認證師資 → 教會開設防災士課程 → 社區防災訓練與演練 → 申請 TCERT（臺灣社區緊急應變隊，內政部認證）\n\n核心觀念\n- 把關懷的時間軸往前移，從救災擴展到防災，口號是「預防重於治療」\n- 防災士培訓也具有民防意義：非武裝、以守護生命為核心\n- 教會不取代政府，任務是補上制度還沒覆蓋到的縫隙\n\n經文配對\n| 經文 | 內容 |\n|---|---|\n| 路加 14:28 | 蓋樓前先坐下算計花費 |\n| 馬太 22:39 | 愛人如己 |\n| 林前 12:26 | 一個肢體受苦，所有肢體一同受苦 |\n| 希伯來 10:24 | 彼此相顧 |\n| 羅馬 12:12 | 在指望中要喜樂 |\n\n背景事件：丹娜絲颱風；馬太鞍溪堰塞湖造成光復的傷亡"], ["核心素養 B｜災害管理的基本概念（三系統）", "災害由三個系統交互作用形成\n| 系統 | 內容 | 防災目標 | 主要作為 |\n|---|---|---|---|\n| 作用力系統 | 颱風、降雨、地震、爆炸 | 掌握危害特性 | 預測與預警 |\n| 人文環境系統 | 人口、經濟、文化 | 降低社會脆弱度 | 資訊公開、社區防災、NGO 協力 |\n| 人造環境系統 | 土地利用、建物、道路 | 降低空間暴露與設施脆弱性 | 土地使用、建築調適、基礎設施韌性 |\n\n圖資判讀三問：哪裡危險（看潛勢圖）？誰在危險地區（看人口密度、高齡人口）？哪些重要設施在風險區？\n\n預測與預警\n- 預測系統：氣象預報、雨量預報、颱風路徑預測、淹水／土石流分級\n- 預警作為：建立警戒制度、避難、交通管制、資源調度\n\n易受災人口：高齡者、租屋族群、身心障礙者、偏遠聚落居民、缺乏交通工具者、低收入戶\n\n都市計畫介入災害風險的四個環節：降低暴露 → 降低脆弱度 → 提升應變能力 → 支持復原\n\n使用分區 × 風險分區：高風險限制開發；中風險條件開發；低風險一般發展\n\n建築的五項調適：耐震補強、地下空間防淹、一樓高程調整、雨水貯留滯洪、維生設備備援\n\n韌性城市四要素：承受衝擊、維持功能、快速恢復、調整學習\n- 關鍵詞：Bounce forward（與 bounce back 對照）\n- 典範轉移：從抵抗災害，走向承受衝擊、快速恢復、持續學習\n\n多功能空間：公園平時休憩，災時滯洪、避難"], ["核心素養 C｜災害管理四階段循環", "四階段各自負責什麼\n| 階段 | 核心 | 主要工作 |\n|---|---|---|\n| 減災 | 降低風險 | 土地使用管制、工程減災、降低暴露 |\n| 整備 | 備資源 | 演練、計畫、物資、潛勢與脆弱度掌握 |\n| 應變 | 保生命 | 疏散避難、搜救、醫療、收容、EOC |\n| 重建 | 再調整 | 環境復原、設施復建、生活安置、產業振興 |\n\n疏散方式\n- 異地疏散：土石流通常採用\n- 就地垂直避難：水災時間不足時，往建物高樓層移動\n- 避難三問：危險區域在哪？安全路徑在哪？避難場所可達且可用嗎？\n\n黃金 72 小時\n- 0–24 小時存活機率最高\n- 24–72 小時仍有大量生存希望\n- 72 小時後存活機率大幅下降\n- 救援順序：家戶 → 鄰里 → 社區 → 專業搜救；多數受困者先由家人、鄰居救出\n\nEOC 六項功能：協調、決策、運作管理、資訊蒐集與記錄、公共資訊、接待來訪者。EOC 是整合資訊與資源的平台。\n\n結構式與非結構式減災\n- 結構式（工程）：攔砂壩、護坡、擋土牆、堤防、水壩、排水系統、抽水站、分洪道\n- 非結構式（制度）：土地徵收或調整、降低使用強度、災害保險、資訊揭露、風險溝通\n- 「工程不是零風險」：工程可能帶來錯誤安全感，引來更多開發，風險反而累積。案例是員山子分洪道與汐止的發展。\n\n其他重點\n- 災害複合性有五種衝擊：自然、空間、制度、經濟、社會\n- 機會之窗：洛杉磯北嶺地震後，住宅結構強化法令快速通過\n- 照護機構案例：2000 象神颱風基隆護理之家；2010 凡那比颱風高雄岡山安養中心\n- 演練循環：計畫 → 演練 → 發現問題 → 修正計畫"], ["專業課程｜社區防災工作推動與運作（15 分鐘）", "防災社區的定義：具有防救災功能，且朝向永續發展的社區\n- 災前：降低災害發生機會\n- 災時：承受衝擊、降低損失\n- 災後：迅速復原並持續發展\n\n核心精神：由下而上\n\n推動八步驟（順序題）：啟蒙啟動 → 環境踏查 → 地圖繪製 → 對策討論 → 建立組織 → 研擬計畫 → 實作演練 → 成果發表\n\n平時四件事：調查、地圖、組織、演練\n\n防災組織從哪裡來\n- 來源：社區既有組織，包括村里辦公處、社區發展協會、巡守隊、環保志工隊、宗教團體、文健站\n- 災時轉成五組：指揮聯絡、警戒巡查、撤離協助、收容照顧、物資支援\n\n防災士的位置\n- 站在社區組織、專業團隊、政府機關三方中間，負責連結、溝通、推動\n- 四個角色：引導者、連結者、記錄者、推動者\n- 一句話定位：防災士是「催化劑」\n\n921 案例\n- 中寮鄉：全倒 2,542 戶、半倒 1,424 戶、死亡 179 人\n- 龍安村：廖振益村長 1998 年上任，地震當晚救出 27 人，全村 700 多戶無人罹難\n\n脆弱族群與文健站\n- 關注對象：高齡者、獨居者、身障者、嬰幼兒家庭、慢性病患\n- 文健站是關鍵連結點\n\n三套推動政策：農業部（自主防災社區）、經濟部水利署（水患自主防災社區）、內政部消防署（防災／韌性社區）"], ["專業課程｜社區避難收容場所開設與運作（15 分鐘）", "這一科數字最多，最適合出選擇題。\n\n三大功能：收容災民、提供簡易醫療、救災物資存放\n\n三種類型\n| 類型 | 期間 | 典型場所 |\n|---|---|---|\n| 緊急避難收容場所 | 約 1 日 | 空曠地、醫療站、體育館 |\n| 臨時避難收容場所 | 約 14 日 | 學校、活動中心 |\n| 臨時性住屋 | 6 個月以上 | 組合屋 |\n\n開設時機（When）\n- 風災：發布海上陸上颱風警報，且本縣市列為警戒範圍\n- 水災：發布豪大雨特報\n- 震災：發生芮氏規模 6 強烈地震後，為免餘震危害\n- 土石流：水土保持局發布土石流警戒值，且潛勢區已達黃色或紅色警戒\n- 事故災害：火災、爆炸、管線、毒化物、化學災害\n- 強制撤離：由應變中心指揮官下令\n\n戰時收容救濟站\n- 每個鄉鎮市區至少 1 處\n- 不可與政府機關、軍需設施、民生必需品配銷站設在同一處\n- 現有防空避難處所如果具備基本維生設施，可以優先選用\n\n容量計算\n- 每人 4 m²\n- 先扣除入口、通道、服務區、衛浴與危險區，剩下的才是可收容面積\n- 舊版例題：400 m² → 100 人；寢區 8 成（320 m²）、公共空間 2 成（80 m²）\n\n物資基準（2026 版）\n| 項目 | 基準 |\n|---|---|\n| 帳篷 | 每 4–8 人一頂（以 6 人帳估算） |\n| 寢具 | 1 人 1 副 |\n| 生活用水 | 每人每日 20 L |\n| 飲用水 | 每人每日 3 L |\n| 緊急消防用水 | 40 m³ |\n| 緊急救護量能 | 容納人數 × 20% |\n| 臨時廁所 | 每 100 人一座 |\n| 盥洗設備 | 每 50 人一座 |\n| 水肥車 | 每 6 座臨時廁所配一台 |\n| 垃圾量 | 每人每日 200 g |\n| 垃圾桶 | 每 25 人一個 |\n| 一週內糧食 | 每人每日 400–900 g |\n\n組織分組（2026 版）：指揮官（站長）底下分六組\n- 綜合作業：報到登記、EMIC 回報、媒體接待\n- 物資管理\n- 關懷照顧\n- 安全維護：生活公約、進出管控\n- 人力資源：志工統籌、排班\n- 醫療資源\n\n開設權責四階段\n| 階段 | 主責單位 |\n|---|---|\n| 居民撤離與救難 | 民政局（村里長、幹事）、警察局、搜救大隊、消防隊 |\n| 避難收容場所成立 | 縣市政府社會局／處 |\n| 運作與管理 | 政府主責；里長、社區、NGO 協力 |\n| 收容結束 | 縣市政府社會局／處公告 |\n\n人力投入曲線（2026 版講義沒有這張圖，考的機率較低）\n| 階段 | 天數 | 人力 |\n|---|---|---|\n| 前置作業期 | 1–3 天 | 5–10 人 |\n| 作業期 | 1–3 天 | 8–25 人 |\n| 適應期 | 4–10 天 | 7–12 人 |\n| 穩定期 | 11–20 天 | 3–7 人 |\n| 自治管理期 | 21 天以上 | 1–3 人 |\n\n流程與生活管理\n- 報到五步：身分確認 → 家庭資料 → 特殊需求 → 聯絡方式 → 建立收容名冊\n- 空間安排：家庭優先、分區兼顧安全；行動不便者安排在靠近廁所與醫療站的位置\n- 物資五步：接收清點 → 分類標示 → 安全儲存 → 登記發放 → 盤點補充\n- 物資來源以災前簽訂的開口合約為主；災後公開募集物資會讓災區壓力倍增\n\n花蓮光復案例\n- 馬太鞍長老教會臨時收容約 450 人\n- 結論：民間接住居民，政府仍應完整履責\n\n防災士的清楚界線：不自行決定強制收容、醫療處置，或其他應由權責單位判斷的事項\n\n法源\n- 災防法第 24 條：勸告或強制撤離，並作適當之安置\n- 災防法第 27 條：臨時收容、社會救助、弱勢族群保護\n\n特殊需求者\n- 對象分三類：年齡與家庭（高齡、嬰幼兒、孕產婦）、健康與行動（身障、慢性病）、溝通與生活（外籍、語言障礙）\n- 友善措施六項：無障礙、家庭照顧、安靜休息、醫療轉介、資訊溝通、隱私尊重"], ["出題型態推測與準備建議", "1. 數字題最容易出：4 m²、20 L／3 L、每 100 人一座廁所、20% 救護量能、532／37／14、芮氏規模 6 強烈地震後開設、72 小時分段。\n2. 順序題：社區推動八步驟、四階段循環、報到五步、物資五步、培力路徑。\n3. 配對題：三系統對應防災目標、結構式或非結構式、各組工作內容、類型對應期間。\n4. 觀念陷阱：工程減災等於零風險（✕）、韌性就是恢復原狀（✕）、防災士自行決定強制收容（✕）、災後公開募集物資最有效率（✕）。\n5. 新舊版講義不一致的地方要注意：\n   - 分組：舊版五組，新版多了醫療資源組\n   - 短期收容期間：舊版寫一般兩週、最長一個月，新版寫臨時收容約 14 日\n   - 用水：舊版寫每人每日 15–20 L，新版分成生活用水 20 L、飲用水 3 L\n\n   作答時以 2026 版為準。"]];
+for(const [heading,content] of knowledgeBlocks){
+ const details=document.createElement('details');
+ addText(details,'summary',heading);
+ const lines=content.split('\n');
+ for(let i=0;i<lines.length;i++){
+  const line=lines[i].trim();
+  if(!line)continue;
+  if(line.startsWith('|')){
+   const table=document.createElement('table'), wrap=document.createElement('div');wrap.className='knowledgeTable';
+   let rowIndex=0;
+   while(i<lines.length&&lines[i].trim().startsWith('|')){
+    const cells=lines[i].trim().slice(1,-1).split('|').map(x=>x.trim());
+    i++;
+    if(cells.every(x=>/^:?-+:?$/.test(x)))continue;
+    const row=table.insertRow();
+    cells.forEach(value=>{
+     const cell=addText(row,rowIndex===0?'th':'td',value);
+     if(rowIndex===0)cell.scope='col';
+    });
+    rowIndex++;
+   }
+   i--;wrap.append(table);details.append(wrap);
+  }else{
+   addText(details,'p',line.replace(/^[-*] /,'• '));
+  }
+ }
+ $('knowledgeItems').append(details);
+}
+
+/* ───── 本課講義對照（2026 總會版《社區避難收容場所開設與運作》五單元） ───── */
+const refs=[
+ {unit:'第一單元｜避難收容場所之目的與功能',points:[
+  '需要收容的三種情況：住宅受損或不安全、預防性撤離、日常生活中斷（停水停電、道路中斷）。',
+  '避難所是供災民或可能面臨災害者，在特定期間中避難生活的場所。',
+  '三大功能：收容災民、提供簡易醫療（初步處理、必要轉介）、救災物資存放。',
+  '三種類型：緊急避難收容場所（約 1 日；空曠地、醫療站、體育館）→ 臨時避難收容場所（約 14 日；學校、活動中心）→ 臨時性住屋（6 個月以上；組合屋）。',
+  '開設時機：颱風警報且本縣市列警戒範圍；豪大雨特報；芮氏規模 6 強烈地震後為免餘震危害；土石流警戒達黃色或紅色；重大火災、爆炸、管線、毒化物、化學災害；應變中心指揮官下令強制撤離。',
+  '法源：災防法第 24 條（勸告或強制撤離並作適當安置）、第 27 條（臨時收容、社會救助、弱勢族群特殊保護）。'],
+  link:'本課活動「三問」對應講義 C 的避難三問：危險區域、安全路徑、場所可達且可用。'},
+ {unit:'第二單元｜避難收容場所之整備與配置',points:[
+  '選址三原則：安全優先、容易到達、具備基本條件（空間、衛浴、水電、無障礙）。',
+  '場地檢查五項：建物與周邊環境；出入口、逃生通道與消防設備；水電照明通訊；廁所洗手與無障礙通道；危險區域與警示標示。',
+  '樓地板面積≠可用收容面積：扣除出入口、通道、服務區、衛浴與危險區後，以每人 4 m² 估算。',
+  '六項基本需求：食、衣、住、行、醫療、通訊。宣布開設之後，還要能穩定運作。',
+  '功能分區：住宿休息、服務報到、物資與用餐、健康照護、衛浴清潔、安全動線。',
+  '物資基準：生活用水每人每日 20 L、飲用水 3 L；臨時廁所每 100 人一座、盥洗每 50 人一座；緊急救護量能＝容納人數×20%。',
+  '物資五步：接收清點 → 分類標示 → 安全儲存 → 登記發放 → 盤點補充；來源以災前開口合約為主。'],
+  link:'本課 3×3 配置盤對應「功能分區＋安全動線」；容量挑戰對應 4 m² 算法。'},
+ {unit:'第三單元｜避難收容場所之組織與分工',points:[
+  '開設權責四階段：居民撤離與救難（民政、警察、消防）→ 場所成立（縣市社會局／處）→ 運作與管理（政府主責，各單位、NGO 協力）→ 收容結束（社會局／處公告）。',
+  '政府負責開設與統籌；里長掌握居民、社區維持現場生活、民間團體補資源與專業。',
+  '指揮官（站長）下設六組：綜合作業、物資管理、關懷照顧、安全維護、人力資源、醫療資源。',
+  '綜合作業：報到登記、EMIC 回報、來訪與媒體接待；安全維護：生活公約、進出管控、異常通報。',
+  '防災士的清楚界線：協助現場，不自行決定強制收容、醫療處置或其他須由權責單位判斷的事項。'],
+  link:'本課「位置｜事件｜需求」回報句型，對應各組之間的通報與交接。'},
+ {unit:'第四單元｜避難收容場所之生活管理',points:[
+  '報到五步：身分確認 → 家庭資料 → 特殊需求 → 聯絡方式 → 建立收容名冊。',
+  '入住到離所：報到確認 → 基本登記 → 住宿引導 → 人數更新 → 離所記錄。',
+  '生活公約三面向：共同生活（作息、照明、噪音）、維持秩序（物資領取、問題反映）、共同參與。',
+  '環境衛生四項：廢棄物儲放與處理、廁所與清潔、飲食及飲水、健康風險（出現感染疑慮通報處理）。',
+  '資訊：單一窗口發布、持續更新；收容名冊協助確認平安，個人資料不任意公開。',
+  '收容結束五步：離所確認 → 資料彙整 → 物資清點 → 場地清潔 → 歸還檢查。'],
+  link:'本課公約與圖文告示，對應「生活公約＋資訊公告」；物資五步投影頁對應第二單元。'},
+ {unit:'第五單元｜特殊需求者之收容與照顧',points:[
+  '三類需求者：年齡與家庭（高齡、嬰幼兒、兒童、孕產婦）、健康與行動（身障、慢性病、需輔具者）、溝通與生活（外籍人士、語言溝通困難者）。',
+  '高齡與行動不便：靠近廁所、減少跨越障礙；詢問本人需要何種協助，不擅自移動或替代其決定。',
+  '六項友善措施：無障礙通行、家庭照顧、安靜休息、醫療轉介、資訊溝通（多語、圖示）、隱私尊重。',
+  '情境處理：輪椅進不了廁所 → 協助找可及設施並通報改善；長者藥物不足 → 了解急迫程度、聯繫醫護或權責單位；嬰幼兒缺用品 → 記錄需求、確認庫存並補充。',
+  '醫療與特別需求照顧從報到就開始：先辨識需求，再調整空間與服務。'],
+  link:'本課「先問本人、等候回覆、提供選項、必要時轉介成人」對應講義的安全確認原則。'}
+];
+function renderRef(){
+ const r=refs[active];
+ $('refTitle').textContent='本課講義對照（教師用）｜'+r.unit.split('｜')[1];
+ $('refSource').textContent='來源：2026 總會版講義《社區避難收容場所開設與運作》'+r.unit.split('｜')[0]+'。實際開設與配置依權責機關及現場公告。';
+ const ul=document.createElement('ul');r.points.forEach(t=>addText(ul,'li',t));
+ const p=document.createElement('p');p.textContent='與本課活動的連結：'+r.link;
+ $('refBody').replaceChildren(ul,p);
+}
+
+/* ───── 試教演練：抽籤＋6 分鐘總計時 ───── */
+const trialSeg=timings[6].map(m=>m*60); // [60,60,120,60,60]
+const trialTotal=trialSeg.reduce((a,b)=>a+b,0);
+let trialEnd=0,trialLeft=trialTotal,trialSegNow=-1,lastDraw=-1,audio;
+function beep(times=1){
+ if(!$('trialBeep').checked)return;
+ try{audio??=new (window.AudioContext||window.webkitAudioContext)();
+  for(let k=0;k<times;k++){const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=times>1?660:880;o.connect(g);g.connect(audio.destination);
+   const t=audio.currentTime+k*.28;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.22);o.start(t);o.stop(t+.24)}}catch{}
+}
+$('trialBar').replaceChildren(...trialSeg.map(s=>{const x=document.createElement('span');x.style.setProperty('--w',s);return x}));
+function trialRender(){
+ if(trialEnd)trialLeft=Math.max(0,Math.ceil((trialEnd-Date.now())/1000));
+ const used=trialTotal-trialLeft;let acc=0,seg=trialSeg.length-1;
+ for(let i=0;i<trialSeg.length;i++){if(used<acc+trialSeg[i]){seg=i;break}acc+=trialSeg[i]}
+ [...$('trialBar').children].forEach((x,i)=>{x.className=i<seg||!trialLeft?'done':i===seg&&used>0?'now':'';if(i===seg)x.style.setProperty('--p',Math.min(100,(used-acc)/trialSeg[i]*100)+'%')});
+ $('trialClock').textContent=Math.floor(trialLeft/60)+':'+String(trialLeft%60).padStart(2,'0');
+ $('trialBox').classList.toggle('alert',trialLeft>0&&trialLeft<=30);
+ $('trialStart').textContent=trialEnd?'暫停':trialLeft<trialTotal&&trialLeft>0?'繼續':'開始 6 分鐘';
+ $('trialStart').disabled=!trialLeft;
+ if(used>0&&seg!==trialSegNow&&trialLeft){
+  if(trialSegNow>=0)beep();
+  trialSegNow=seg;
+  if(mode===6&&phase!==seg){resetPhase(seg);renderStage()}
+ }
+ if(used>0){
+  const segLeft=acc+trialSeg[seg]-used;
+  $('trialCue').textContent=!trialLeft?'時間到。請收尾：重述本課一句重點。':'第 '+(active+1)+' 課｜'+steps[seg][0]+'（本段剩 '+Math.floor(segLeft/60)+':'+String(segLeft%60).padStart(2,'0')+'）'+(seg<trialSeg.length-1?'　下一段：'+steps[seg+1][0]:'');
+ }
+ if(trialEnd&&!trialLeft){trialEnd=0;beep(3);$('trialStart').textContent='開始 6 分鐘';$('trialStart').disabled=true}
+}
+$('trialStart').onclick=()=>{
+ if(trialEnd){trialLeft=Math.max(0,Math.ceil((trialEnd-Date.now())/1000));trialEnd=0}
+ else{
+  if(mode!==6){mode=6;resetPhase(0);render()}
+  if(trialLeft===trialTotal){trialSegNow=-1;resetPhase(0);renderStage()}
+  try{audio??=new (window.AudioContext||window.webkitAudioContext)();audio.resume?.()}catch{}
+  trialEnd=Date.now()+trialLeft*1000;
+ }
+ trialRender();
+};
+$('trialReset').onclick=()=>{trialEnd=0;trialLeft=trialTotal;trialSegNow=-1;$('trialCue').textContent='準備好後按「開始 6 分鐘」。';resetPhase(0);renderStage();trialRender()};
+$('draw').onclick=()=>{
+ const btn=$('draw');if(btn.disabled)return;btn.disabled=true;
+ const pool=lessons.map((_,i)=>i).filter(i=>i!==lastDraw);
+ const pick=pool[Math.floor(Math.random()*pool.length)];
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ let n=0;btn.classList.add('spinning');
+ const spin=setInterval(()=>{btn.textContent=lessons[n++%lessons.length].title;if(n>=(reduce?1:14)){clearInterval(spin);finish()}},reduce?0:90);
+ function finish(){
+  btn.classList.remove('spinning');btn.disabled=false;lastDraw=pick;
+  btn.textContent='第 '+(pick+1)+' 課\n'+lessons[pick].title;btn.style.whiteSpace='pre-line';
+  mode=6;active=pick;$('trialReset').click();render();
+  $('trialCue').textContent='抽到第 '+(pick+1)+' 課「'+lessons[pick].title+'」。已切換到 6 分鐘快教版，按「開始 6 分鐘」。';
+  $('trialStart').focus();
+ }
+};
+setInterval(trialRender,250);trialRender();
+
+/* ───── 防災士筆試自我檢測 ───── */
+const quiz=[
+ ['核心','依總會立場文，全台原住民中會共有多少間教會？',['476 間','532 間','213 間','37 間'],1,'原住民中會 532 間；其中 37 間位於土石流潛勢區、14 間位於大規模崩塌潛勢區。'],
+ ['核心','總會規劃的防災培力路徑，最後一步是什麼？',['教會開設防災士課程','總會取得培訓機構認證','社區申請 TCERT 認證','培養中會認證師資'],2,'順序：總會認證 → 中會師資 → 教會開課 → 社區防災訓練與演練 → 申請 TCERT（臺灣社區緊急應變隊）。'],
+ ['核心','立場文引用哪段經文說明「行動前先預備」？',['羅馬書 12:12','路加福音 14:28','希伯來書 10:24','哥林多前書 12:26'],1,'路加 14:28：蓋樓前先坐下算計花費。希伯來 10:24 是「彼此相顧」。'],
+ ['核心','「災害是三個系統交互作用的結果」，三個系統是？',['減災、整備、應變','作用力、人文環境、人造環境','政府、社區、NGO','颱風、地震、豪雨'],1,'作用力系統（颱風、降雨、地震、爆炸）× 人文環境系統（人口、經濟、文化）× 人造環境系統（土地利用、建物、道路）。'],
+ ['核心','人文環境系統的防災目標是？',['掌握危害特性','降低社會脆弱度','降低空間暴露','提高工程標準'],1,'人文環境系統：降低社會脆弱度；主要作為是資訊公開、社區防災、NGO 協力。'],
+ ['核心','圖資判讀的三個問題，不包括哪一項？',['哪裡危險','誰在危險地區','哪些重要設施在風險區','災後補助金額多少'],3,'三問：災害潛勢 × 人口暴露 × 重要設施。'],
+ ['核心','土地使用分區 × 風險分區中，「中風險」對應的開發方式？',['限制開發','條件開發','一般發展','全面禁止'],1,'高風險限制開發；中風險條件開發；低風險一般發展。'],
+ ['核心','韌性城市的四個要素，正確組合是？',['承受衝擊、維持功能、快速恢復、調整學習','抵抗災害、完全不受損、恢復原狀、加強工程','減災、整備、應變、重建','預測、預警、避難、收容'],0,'韌性強調 bounce forward：災後調整學習，降低下一次風險。'],
+ ['核心','災害管理四階段中，「土地使用管制、工程減災、降低暴露」屬於？',['整備','應變','減災','重建'],2,'減災：降低風險。整備是備資源；應變是保生命；重建是再調整。'],
+ ['核心','水災時間不足、無法異地撤離時，可採取哪種避難？',['就地垂直避難','異地疏散避難','原地等待','逆流前往低地'],0,'就地垂直避難：往建物較高樓層移動。土石流通常需要異地疏散。'],
+ ['核心','關於黃金 72 小時，哪項敘述符合講義？',['72 小時後就停止搜救','0–24 小時存活機率最高','多數受困者由專業搜救隊先救出','24–72 小時已無生存希望'],1,'0–24 小時存活機率最高；24–72 小時仍有大量生存希望；多數受困者先由家人、鄰居救出。'],
+ ['核心','下列何者屬於「非結構式減災」？',['攔砂壩','抽水站','災害保險','分洪道'],2,'非結構式：土地徵收或調整、降低使用強度、災害保險、資訊揭露、風險溝通。'],
+ ['核心','講義以員山子分洪道與汐止發展說明什麼？',['工程能帶來零風險','工程可能帶來錯誤安全感，使暴露增加','分洪道應全面拆除','都市更新可取代減災'],1,'工程完成 → 安全感提高 → 開發增加 → 暴露增加 → 風險再累積。'],
+ ['核心','EOC（災害應變中心）的定位最接近？',['救災指揮所','整合資訊、協調資源、支援決策與溝通的平台','醫療站','物資倉庫'],1,'六項功能：協調、決策、運作管理、資訊蒐集與記錄、公共資訊、接待來訪者。'],
+ ['專1','防災社區的定義是？',['設有消防隊的社區','具有防救災功能，且朝向永續發展的社區','完成防災地圖的社區','政府指定的示範社區'],1,'且在平時、災時、災後都能自動自發進行防救災工作。'],
+ ['專1','防災社區推動步驟中，「地圖繪製」的下一步是？',['環境踏查','對策討論','建立組織','實作演練'],1,'啟蒙啟動 → 環境踏查 → 地圖繪製 → 對策討論 → 建立組織 → 研擬計畫 → 實作演練 → 成果發表。'],
+ ['專1','防災社區的核心精神是？',['由上而下','由下而上','專家主導','政府全額補助'],1,'社區自己看見問題、自己動起來；政府與專業者在旁支援。'],
+ ['專1','社區防災組織的來源，講義建議從哪裡開始？',['另外成立全新組織','社區既有組織','委外給顧問公司','由消防隊直接編組'],1,'村里辦公處、社區發展協會、巡守隊、環保志工隊、宗教團體、文健站，災時轉換為防災任務編組。'],
+ ['專1','防災士在社區中的四個角色，不包括？',['引導者','連結者','記錄者','指揮官'],3,'引導者、連結者、記錄者、推動者；防災士被比喻為「催化劑」。'],
+ ['專1','921 地震時，龍安村廖振益村長當晚救出多少人？',['17 人','27 人','179 人','700 人'],1,'他熟悉每一戶的室內格局，帶年輕人從 200 多戶倒屋中救出 27 人；全村 700 多戶無人罹難。'],
+ ['專1','「平時，社區防災做四件事」是？',['調查、地圖、組織、演練','募款、採購、儲備、發放','通報、撤離、收容、復原','預測、預警、避難、管制'],0,'調查環境風險、繪製防災地圖、建立組織分工、定期演練。'],
+ ['專2','避難收容場所的三大功能是？',['收容災民、提供簡易醫療、救災物資存放','收容災民、發放補助、重建房屋','醫療手術、心理諮商、法律協助','搜救、消防、交通管制'],0,'2026 版講義第一單元。'],
+ ['專2','臨時避難收容場所的期間約為？',['1 日','14 日','6 個月以上','1 年'],1,'緊急約 1 日；臨時約 14 日（學校、活動中心）；臨時性住屋 6 個月以上（組合屋）。'],
+ ['專2','震災的收容開設時機是？',['任何有感地震','芮氏規模 6 強烈地震後，為免餘震危害','震度 3 以上','僅在建物倒塌後'],1,'2026 版「避難收容場所開設原則（When）」。'],
+ ['專2','估算收容人數時，每人以多少面積計？',['2 m²','3 m²','4 m²','6 m²'],2,'先扣除出入口、通道、服務區、衛浴與危險區，再以每人 4 m² 估算。'],
+ ['專2','可用面積 120 m²，扣除通道與服務 40 m² 後，可收容幾人？',['20 人','30 人','40 人','80 人'],0,'(120−40) ÷ 4 = 20 人。'],
+ ['專2','2026 版物資基準，每人每日飲用水是？',['1 L','3 L','20 L','40 L'],1,'飲用水每人每日 3 L；生活用水每人每日 20 L；緊急消防用水 40 m³。'],
+ ['專2','臨時廁所的設置基準是？',['每 25 人一座','每 50 人一座','每 100 人一座','每 200 人一座'],2,'臨時廁所每 100 人一座；盥洗設備每 50 人一座；垃圾桶每 25 人一個。'],
+ ['專2','緊急救護量能的估算方式是？',['容納人數 × 5%','容納人數 × 10%','容納人數 × 20%','固定 10 床'],2,'2026 版講義：容納人數 × 20%。'],
+ ['專2','收容所物資調度的正確認識是？',['災後立即對外公開募集','以災前簽訂的開口合約調度為主','由居民自行採購','只收現金捐款'],1,'光復案例：公開募集物資讓災區壓力倍增，部落青年來不及分送。'],
+ ['專2','2026 版收容組織，指揮官下設幾組？',['4 組','5 組','6 組','7 組'],2,'綜合作業、物資管理、關懷照顧、安全維護、人力資源、醫療資源。舊版為五組。'],
+ ['專2','「報到登記、EMIC 回報、媒體接待」屬於哪一組？',['綜合作業組','物資管理組','安全維護組','人力資源組'],0,'安全維護組負責生活公約、進出管控；人力資源組負責志工統籌與排班。'],
+ ['專2','避難收容場所的成立，主責單位是？',['村里長','縣市政府社會局／處','消防局','NGO'],1,'撤離由民政、警察、消防；場所成立與收容結束公告由社會局／處；運作由政府主責、各方協力。'],
+ ['專2','下列何者超出防災士的界線？',['協助居民報到','自行決定強制收容或醫療處置','協助物資整理','引導動線'],1,'不自行決定強制收容、醫療處置或其他須由權責單位判斷的事項。'],
+ ['專2','報到五步的正確順序是？',['聯絡方式 → 身分確認 → 家庭資料 → 特殊需求 → 名冊','身分確認 → 家庭資料 → 特殊需求 → 聯絡方式 → 建立收容名冊','家庭資料 → 名冊 → 身分確認 → 特殊需求 → 聯絡方式','特殊需求 → 身分確認 → 名冊 → 家庭資料 → 聯絡方式'],1,'先知道每一戶的情況，才能避免有人被遺漏。'],
+ ['專2','行動不便的長者需要移動時，第一步是？',['直接推他過去','詢問本人需要何種協助','請他留在原地不動','交給其他居民處理'],1,'安全確認：詢問本人需要何種協助，不擅自移動或替代其決定。'],
+ ['專2','戰時災民收容救濟站的設置原則，何者正確？',['可與軍需設施設在同一處','各鄉（鎮、市）及區至少設置 1 處','僅能設在政府機關內','不得使用防空避難處所'],1,'不得與政府機關、軍需簽證場所、民生必需品配銷站同一處；具基本維生設施的防空避難處所可優先選用。']
+];
+let quizFilter='全部',quizOrder=[],quizAnswers={};
+function shuffleQuiz(){quizOrder=quiz.map((_,i)=>i);for(let i=quizOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[quizOrder[i],quizOrder[j]]=[quizOrder[j],quizOrder[i]]}quizAnswers={};renderQuiz()}
+function renderQuiz(){
+ const cats=['全部','核心','專1','專2'],label={全部:'全部',核心:'核心素養',專1:'社區防災',專2:'避難收容'};
+ $('quizFilters').replaceChildren(...cats.map(c=>button(label[c]+'（'+(c==='全部'?quiz.length:quiz.filter(q=>q[0]===c).length)+'）',()=>{quizFilter=c;renderQuiz()},c===quizFilter)));
+ const list=quizOrder.filter(i=>quizFilter==='全部'||quiz[i][0]===quizFilter);
+ $('quizItems').replaceChildren(...list.map((qi,n)=>{
+  const [cat,q,opts,ok,why]=quiz[qi],box=document.createElement('div');box.className='quiz-q';
+  const p=document.createElement('p');const c=document.createElement('span');c.className='cat';c.textContent=label[cat];p.append(c,(n+1)+'. '+q);
+  const ch=document.createElement('div');ch.className='choices';const fb=document.createElement('p');fb.className='why';fb.setAttribute('aria-live','polite');
+  const paint=pick=>{[...ch.children].forEach((b,j)=>{b.classList.toggle('right',j===ok);b.classList.toggle('wrong',j===pick&&pick!==ok);b.setAttribute('aria-pressed',j===pick)});fb.textContent=(pick===ok?'答對。':'正解：'+opts[ok]+'。')+why};
+  opts.forEach((o,j)=>ch.append(button(String.fromCharCode(65+j)+'　'+o,()=>{quizAnswers[qi]=j;paint(j);score()},false)));
+  if(Number.isInteger(quizAnswers[qi]))paint(quizAnswers[qi]);
+  box.append(p,ch,fb);return box;
+ }));
+ score();
+ function score(){const done=list.filter(i=>Number.isInteger(quizAnswers[i])),right=done.filter(i=>quizAnswers[i]===quiz[i][3]);$('quizScore').textContent='已答 '+done.length+'／'+list.length+'，答對 '+right.length+' 題'}
+}
+$('quizShuffle').onclick=shuffleQuiz;shuffleQuiz();
+
+render();
+</script></html>
